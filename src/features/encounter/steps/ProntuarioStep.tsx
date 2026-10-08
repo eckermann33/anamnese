@@ -97,7 +97,10 @@ export function ProntuarioStep() {
             className="textarea note-editor"
             value={text}
             aria-label="Texto do prontuário (editável)"
-            onChange={(e) => update((d) => void (d.note = { text: e.target.value, generatedAt: Date.now(), edited: true }))}
+            onChange={(e) => {
+              const text = e.target.value; // lido já: o updater roda depois
+              update((d) => void (d.note = { text, generatedAt: Date.now(), edited: true }));
+            }}
             spellCheck
           />
         </div>

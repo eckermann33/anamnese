@@ -247,13 +247,19 @@ export interface Evolution {
   examText: string;
   objectiveNotes: string;
   fluid?: FluidBalance;
+  /** Peso do dia (kg) — base do débito urinário em mL/kg/h. */
+  weight?: number;
   assessment: string;
   plan: string;
   todos: Todo[];
+  /** Checklist diário do leito (FAST HUGS BID): item → revisado. */
+  checklist?: Record<string, boolean>;
   /** Campos copiados de ontem que ainda não foram revisados. */
-  carriedOver: string[];
+  carriedOver: CarriedField[];
   text?: string;
 }
+
+export type CarriedField = 'subjective' | 'examText' | 'objectiveNotes' | 'assessment' | 'plan' | 'todos';
 
 // ---------------- Fase 3: treino ----------------
 

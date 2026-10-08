@@ -90,7 +90,10 @@ export function IdStep() {
             type="date"
             className="list-row-field"
             value={patient.admissionDate ?? ''}
-            onChange={(e) => updatePatient((d) => void (d.admissionDate = e.target.value || undefined))}
+            onChange={(e) => {
+              const v = e.target.value || undefined; // lido já: o updater roda depois
+              updatePatient((d) => void (d.admissionDate = v));
+            }}
           />
         </div>
       </ListSection>

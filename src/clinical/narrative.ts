@@ -132,7 +132,7 @@ export function sectionText(section: QuestionSection, ctx: ClinicalContext, subj
 
 /* ---------- Seções do prontuário ---------- */
 
-function idText(enc: Encounter, p: Patient | undefined, anonymize: boolean): string {
+export function idText(enc: Encounter, p: Patient | undefined, anonymize: boolean): string {
   if (!p) return 'Não informada.';
   const parts: string[] = [];
   if (!anonymize && p.initials) parts.push(p.initials.toUpperCase());
@@ -224,11 +224,17 @@ function sectionsText(sections: QuestionSection[], ctx: ClinicalContext): string
   return sections.flatMap((s) => sectionText(s, ctx).sentences);
 }
 
+/** Comorbidades em texto (rótulos + "outras"). */
+export function comorbidities(h: Encounter['history']): string[] {
+  const diseases = labelsOf(DISEASE_OPTIONS, h.diseases);
+  if (h.diseasesOther.trim()) diseases.push(h.diseasesOther.trim());
+  return diseases;
+}
+
 function apText(ctx: ClinicalContext): string {
   const h = ctx.enc.history;
   const lines: string[] = [];
-  const diseases = labelsOf(DISEASE_OPTIONS, h.diseases);
-  if (h.diseasesOther.trim()) diseases.push(h.diseasesOther.trim());
+  const diseases = comorbidities(h);
   if (diseases.length) lines.push(sentence(`Comorbidades: ${joinPt(diseases)}`));
   if (h.surgeries.length)
     lines.push(sentence(`Cirurgias prévias: ${h.surgeries.map((s) => `${s.name}${s.year ? ` (${s.year})` : ''}`).join('; ')}`));
@@ -316,6 +322,14 @@ function efText(ctx: ClinicalContext): string {
     if (t) lines.push(`${def.abbr}: ${t}`);
   }
   return lines.join('\n') || 'Não realizado.';
+}
+
+/** Exame físico da anamnese sem sinais vitais/antropometria — ponto de partida da 1ª evolução. */
+export function examSummary(enc: Encounter, patient?: Patient): string {
+  return efText(buildContext(enc, patient))
+    .split('\n')
+    .filter((l) => !/^(Sinais vitais|Antropometria):/.test(l) && l !== 'Não realizado.')
+    .join('\n');
 }
 
 function hdText(enc: Encounter): string {

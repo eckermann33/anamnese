@@ -297,6 +297,36 @@ export const REFERENCES: Reference[] = [
     topics: ['lombalgia'],
   },
 
+  // ---------------- Internação e evolução (Fase 2) ----------------
+  {
+    id: 'fast-hug-2005',
+    short: 'Vincent — FAST HUG (2005)',
+    abnt: 'VINCENT, J. L. Give your patient a fast hug (at least) once a day. **Critical Care Medicine**, v. 33, n. 6, p. 1225-1229, 2005. DOI: https://doi.org/10.1097/01.ccm.0000165962.16682.46.',
+    url: 'https://doi.org/10.1097/01.ccm.0000165962.16682.46',
+    topics: ['UTI', 'checklist', 'evolução', 'internação'],
+  },
+  {
+    id: 'fast-hugs-bid-2009',
+    short: 'Vincent & Hatton — FAST HUGS BID (2009)',
+    abnt: 'VINCENT, W. R.; HATTON, K. W. Critically ill patients need "FAST HUGS BID" (an updated mnemonic). **Critical Care Medicine**, v. 37, n. 7, p. 2326-2327, 2009. DOI: https://doi.org/10.1097/CCM.0b013e3181aabc29.',
+    url: 'https://doi.org/10.1097/CCM.0b013e3181aabc29',
+    topics: ['UTI', 'checklist', 'evolução', 'internação'],
+  },
+  {
+    id: 'sbar-2018',
+    short: 'Müller et al. — SBAR e segurança do paciente (revisão sistemática, 2018)',
+    abnt: 'MÜLLER, M. et al. Impact of the communication and patient hand-off tool SBAR on patient safety: a systematic review. **BMJ Open**, v. 8, n. 8, e022202, 2018. DOI: https://doi.org/10.1136/bmjopen-2018-022202.',
+    url: 'https://doi.org/10.1136/bmjopen-2018-022202',
+    topics: ['passagem de plantão', 'SBAR', 'segurança do paciente'],
+  },
+  {
+    id: 'kdigo-lra-2013',
+    short: 'KDIGO — Lesão renal aguda (resumo, 2013)',
+    abnt: 'KELLUM, J. A.; LAMEIRE, N.; KDIGO AKI GUIDELINE WORK GROUP. Diagnosis, evaluation, and management of acute kidney injury: a KDIGO summary (Part 1). **Critical Care**, v. 17, n. 1, p. 204, 2013. DOI: https://doi.org/10.1186/cc11454.',
+    url: 'https://doi.org/10.1186/cc11454',
+    topics: ['lesão renal aguda', 'diurese', 'oligúria', 'balanço hídrico'],
+  },
+
   // ---------------- Semiologia (livros-texto) ----------------
   {
     id: 'porto-semiologia',

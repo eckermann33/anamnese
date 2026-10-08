@@ -11,6 +11,7 @@ import { PatientsList } from './features/patients/PatientsList';
 // primeira visita, tudo já está no cache do aparelho (funciona offline).
 const EncounterRoute = lazy(() => import('./features/encounter/EncounterFlow').then((m) => ({ default: m.EncounterRoute })));
 const PatientDetail = lazy(() => import('./features/patients/PatientDetail').then((m) => ({ default: m.PatientDetail })));
+const EvolutionEditor = lazy(() => import('./features/evolution/EvolutionEditor').then((m) => ({ default: m.EvolutionEditor })));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const TemplatesPage = lazy(() => import('./features/templates/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
 const TrainingHome = lazy(() => import('./features/training/TrainingHome').then((m) => ({ default: m.TrainingHome })));
@@ -29,6 +30,7 @@ export default function App() {
                 <Route path="/atendimento/:id/:step?" element={<EncounterRoute />} />
                 <Route path="/pacientes" element={<PatientsList />} />
                 <Route path="/pacientes/:id" element={<PatientDetail />} />
+                <Route path="/evolucao/:patientId/:evoId" element={<EvolutionEditor />} />
                 <Route path="/treino/*" element={<TrainingHome />} />
                 <Route path="/ajustes" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/atender" replace />} />

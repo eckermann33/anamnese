@@ -5,7 +5,7 @@ import { db } from '../../db';
 import { Page, EmptyState } from '../../components/ui/Page';
 import { ListRow, ListSection } from '../../components/ui/List';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
-import { normalize, relativeTime } from '../../lib/format';
+import { daysBetween, normalize, relativeTime } from '../../lib/format';
 import type { Encounter, Patient } from '../../db/types';
 
 type Filter = 'ativo' | 'alta' | 'todos';
@@ -67,7 +67,7 @@ export function PatientsList() {
               icon={hasAllergy(last) ? AlertTriangle : UserRound}
               iconTone={hasAllergy(last) ? 'red' : 'accent'}
               title={patientTitle(p)}
-              subtitle={[last?.complaint.text, p.bed && `Leito ${p.bed}`, relativeTime(updated)].filter(Boolean).join(' · ')}
+              subtitle={[inpatientDay(p, last), last?.complaint.text, p.bed && `Leito ${p.bed}`, relativeTime(updated)].filter(Boolean).join(' · ')}
               to={`/pacientes/${p.id}`}
             />
           ))}
@@ -75,6 +75,15 @@ export function PatientsList() {
       )}
     </Page>
   );
+}
+
+/** "D5" só para internados (enfermaria/UTI) ainda ativos. */
+function inpatientDay(p: Patient, last?: Encounter) {
+  if (p.status !== 'ativo' || !last || (last.config.setting !== 'enfermaria' && last.config.setting !== 'uti')) return undefined;
+  // conta inline (D1 = dia da internação) para não carregar o motor clínico na lista
+  if (!p.admissionDate) return undefined;
+  const d = daysBetween(p.admissionDate) + 1;
+  return d >= 1 ? `D${d}` : undefined;
 }
 
 function hasAllergy(e?: Encounter) {
