@@ -70,10 +70,11 @@ function limbs(view: 'front' | 'back'): Shape[] {
 }
 
 const FRONT: Shape[] = [
-  R('cabeca_cranio', 80, 0, 60, 50, 0, 'head'),
-  R('face', 80, 50, 60, 12, 0, 'head'),
-  R('mandibula', 80, 62, 60, 14, 0, 'head'),
-  R('pescoco_anterior', 98, 70, 24, 20, 6),
+  R('cabeca_cranio', 80, 0, 60, 46, 0, 'head'),
+  R('face', 80, 46, 60, 14, 0, 'head'),
+  R('pescoco_anterior', 99, 76, 22, 15, 6),
+  // mandíbula: alvo próprio sobre o queixo (fácil de tocar, sem cair no pescoço)
+  E('mandibula', 110, 66, 17, 8),
   // Tórax (o lado direito do paciente aparece à esquerda)
   R('torax_hemitorax_d', 50, 92, 48, 104, 0, 'torso'),
   R('torax_hemitorax_e', 122, 92, 48, 104, 0, 'torso'),
@@ -97,7 +98,7 @@ const FRONT: Shape[] = [
 
 const BACK: Shape[] = [
   R('cabeca_occipital', 80, 0, 60, 80, 0, 'head'),
-  R('cervical_posterior', 98, 70, 24, 20, 6),
+  R('cervical_posterior', 99, 76, 22, 15, 6),
   // Costas: o lado esquerdo do paciente aparece à esquerda
   R('dorso_escapular_e', 50, 92, 48, 108, 0, 'torso'),
   R('dorso_escapular_d', 122, 92, 48, 108, 0, 'torso'),

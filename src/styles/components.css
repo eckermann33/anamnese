@@ -290,6 +290,8 @@ a.list-row:active {
   letter-spacing: var(--ls-subhead);
   font-weight: 500;
   border: 1px solid transparent;
+  text-align: left;
+  padding-block: 7px;
   transition:
     background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),

@@ -98,7 +98,9 @@ export function QuestionSectionView({ section, showExtra, showTitle = true }: Pr
 
   return (
     <section className="qsection" aria-label={section.title}>
-      {showTitle && section.title && <h2 className="qsection-title">{section.title}</h2>}
+      {showTitle && section.title && !(questions.length === 1 && questions[0].label === section.title) && (
+        <h2 className="qsection-title">{section.title}</h2>
+      )}
       <div className="qsection-card">{body}</div>
     </section>
   );

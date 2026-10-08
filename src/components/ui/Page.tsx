@@ -22,7 +22,7 @@ interface PageProps {
   subtitle?: ReactNode;
   /** Sem título grande: mostra o título sempre na barra. */
   compact?: boolean;
-  back?: { to?: string; label?: string; onClick?: () => void };
+  back?: { to?: string; label?: string; onClick?: () => void; iconOnly?: boolean };
   /** Botões à direita na barra superior. */
   actions?: ReactNode;
   /** Área fixa abaixo da barra (alergias, red flags, progresso). */
@@ -70,9 +70,14 @@ export function Page({ title, subtitle, compact, back, actions, sticky, toolbar,
           <div className="navbar-side">
             {back &&
               (back.to ? (
-                <Link to={back.to} className="nav-back glass" aria-label={`Voltar para ${back.label ?? 'anterior'}`}>
+                <Link
+                  to={back.to}
+                  className="nav-back glass"
+                  data-icon-only={back.iconOnly || undefined}
+                  aria-label={`Voltar para ${back.label ?? 'anterior'}`}
+                >
                   <ChevronLeft size={22} strokeWidth={2.2} aria-hidden="true" />
-                  <span>{back.label ?? 'Voltar'}</span>
+                  {!back.iconOnly && <span>{back.label ?? 'Voltar'}</span>}
                 </Link>
               ) : (
                 <button type="button" className="nav-back glass" onClick={back.onClick}>

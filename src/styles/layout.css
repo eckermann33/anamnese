@@ -101,7 +101,12 @@
   opacity: 1;
   transform: none;
 }
-/* Botão "voltar" em cápsula de vidro */
+/* Botão "voltar" em cápsula de vidro (só ícone quando o título é longo) */
+.nav-back[data-icon-only] {
+  width: var(--tap);
+  padding: 0;
+  justify-content: center;
+}
 .nav-back {
   display: inline-flex;
   align-items: center;
@@ -132,9 +137,11 @@
 .tabbar {
   position: fixed;
   z-index: 60;
-  left: 50%;
+  /* centralizado com margin auto (o transform fica livre para as animações) */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   bottom: calc(env(safe-area-inset-bottom) + 10px);
-  transform: translateX(-50%);
   width: min(420px, calc(100% - 32px));
   height: var(--tabbar-h);
   padding: 4px;
@@ -144,7 +151,7 @@
   transition: transform var(--dur) var(--ease-spring), opacity var(--dur) var(--ease-out);
 }
 .tabbar[data-hidden='true'] {
-  transform: translate(-50%, calc(100% + 40px));
+  transform: translateY(calc(100% + 40px));
   opacity: 0;
   pointer-events: none;
 }
@@ -189,9 +196,10 @@
 .bottom-toolbar {
   position: fixed;
   z-index: 60;
-  left: 50%;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   bottom: calc(env(safe-area-inset-bottom) + 10px);
-  transform: translateX(-50%);
   width: min(560px, calc(100% - 24px));
   min-height: var(--toolbar-h);
   padding: 8px;
