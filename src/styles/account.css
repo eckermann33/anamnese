@@ -1,0 +1,72 @@
+/* ==========================================================================
+   CONTA / LOGIN
+   Fundo com leve gradiente; formulário em superfície sólida (conteúdo),
+   botões principais com vidro azul — mesma linguagem do resto do app.
+   ========================================================================== */
+
+.auth-screen {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + var(--s-6)) var(--gutter) calc(env(safe-area-inset-bottom) + var(--s-6));
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--accent-tint-2) 0%, transparent 60%),
+    var(--bg);
+}
+.auth-inner {
+  position: relative;
+  width: min(440px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.auth-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  justify-content: center;
+}
+.auth-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  text-align: center;
+  padding-top: var(--s-4);
+}
+.auth-logo {
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+}
+.auth-card {
+  padding: var(--s-5) var(--s-4);
+}
+.auth-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: 0 var(--s-2);
+  font-size: var(--fs-footnote);
+  line-height: var(--lh-footnote);
+  color: var(--label-2);
+}
+.auth-benefits li {
+  display: flex;
+  gap: var(--s-3);
+  align-items: flex-start;
+}
+.auth-benefits svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--accent);
+}
+.auth-benefits strong {
+  color: var(--label);
+}
+.auth-legal {
+  text-align: center;
+  padding: 0 var(--s-2);
+}

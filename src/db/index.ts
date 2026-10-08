@@ -1,14 +1,29 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { Encounter, Evolution, Patient, SettingsRecord, TrainingSession } from './types';
 import { APP_NAME } from '../config/app';
+import { dbNameFor, readSession } from '../cloud/session';
 
 /* ==========================================================================
    BANCO DE DADOS LOCAL (IndexedDB, via Dexie)
    --------------------------------------------------------------------------
-   Tudo fica salvo SOMENTE no aparelho. Nada vai para servidor, exceto o que
-   você mandar explicitamente para a IA (anonimizado).
+   - Sem conta: banco "anamnese-db", só neste aparelho.
+   - Com conta: um banco por conta ("anamnese-u-<uid>") — quem divide o
+     aparelho não vê os pacientes do outro. Esse banco é a cópia de
+     trabalho (funciona offline) e é sincronizado com a nuvem em segundo
+     plano (src/cloud/sync.ts).
    Para mudar a estrutura: aumente o número da versão e descreva os índices.
    ========================================================================== */
+
+/** Tabelas que vão para a nuvem (as preferências ficam por aparelho). */
+export const SYNC_TABLES = ['patients', 'encounters', 'evolutions', 'training'] as const;
+export type SyncTable = (typeof SYNC_TABLES)[number];
+
+/** Última versão (updatedAt) de cada registro que já está igual na nuvem. */
+export interface SyncMeta {
+  key: string; // "tabela:id"
+  updatedAt: number;
+  deleted?: boolean;
+}
 
 export class AppDB extends Dexie {
   patients!: EntityTable<Patient, 'id'>;
@@ -16,9 +31,10 @@ export class AppDB extends Dexie {
   evolutions!: EntityTable<Evolution, 'id'>;
   training!: EntityTable<TrainingSession, 'id'>;
   settings!: EntityTable<SettingsRecord, 'key'>;
+  syncMeta!: EntityTable<SyncMeta, 'key'>;
 
-  constructor() {
-    super('anamnese-db');
+  constructor(name: string) {
+    super(name);
     // Só os campos usados em buscas/ordenação precisam aparecer aqui.
     this.version(1).stores({
       patients: 'id, updatedAt, status',
@@ -27,10 +43,23 @@ export class AppDB extends Dexie {
       training: 'id, updatedAt, status',
       settings: 'key',
     });
+    this.version(2).stores({ syncMeta: 'key' });
   }
 }
 
-export const db = new AppDB();
+/**
+ * Banco aberto no momento. É `let` de propósito: ao entrar/sair de uma
+ * conta, `switchDatabase` troca a instância e o app é remontado — todos os
+ * módulos que importam `db` passam a enxergar o banco novo.
+ */
+export let db = new AppDB(dbNameFor(readSession()));
+
+export function switchDatabase(name: string): AppDB {
+  if (db.name === name) return db;
+  db.close();
+  db = new AppDB(name);
+  return db;
+}
 
 export function uid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
@@ -87,9 +116,15 @@ export async function importBackup(file: unknown, mode: 'merge' | 'replace'): Pr
   return { patients: b.data.patients?.length ?? 0, encounters: b.data.encounters?.length ?? 0 };
 }
 
-/** Apaga TUDO do aparelho (banco + preferências + cache do app). */
+/** Apaga TUDO do aparelho (bancos de todas as contas + preferências + cache do app). */
 export async function wipeAllData(): Promise<void> {
   await db.delete();
+  try {
+    const names = await Dexie.getDatabaseNames();
+    await Promise.all(names.filter((n) => n.startsWith('anamnese')).map((n) => Dexie.delete(n)));
+  } catch {
+    /* navegador sem listagem de bancos: o banco aberto já foi apagado */
+  }
   try {
     localStorage.clear();
     sessionStorage.clear();

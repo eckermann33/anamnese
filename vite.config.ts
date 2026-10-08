@@ -17,7 +17,7 @@ import {
  * A chave fica só no processo Node do Vite — nunca vai para o navegador.
  */
 function devApiPlugin(env: Record<string, string>): Plugin {
-  const allowedHeaders = ['content-type', 'origin', 'x-access-code'];
+  const allowedHeaders = ['content-type', 'origin', 'x-access-code', 'authorization'];
 
   async function handle(server: ViteDevServer | PreviewServer, req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) {
     try {

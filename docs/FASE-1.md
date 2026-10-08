@@ -105,23 +105,23 @@ O site e a função da IA vão juntos num único Worker.
    npx wrangler@4 secret put LLM_KEY
    ```
 
-5. Recomendado: proteja a sua cota.
+5. A sua cota já vem protegida: com o `FIREBASE_PROJECT_ID` do `wrangler.jsonc`, a IA só responde a quem está **logado** na conta do app (ver [CONTAS.md](CONTAS.md) — falta só autorizar o domínio no Firebase). Opcional:
 
    ```bash
-   npx wrangler@4 secret put ACCESS_CODE        # invente uma senha
+   npx wrangler@4 secret put ACCESS_CODE        # senha para usar a IA SEM conta
    npx wrangler@4 secret put ALLOWED_ORIGINS    # cole o endereço do passo 3
    ```
 
-   Opcional: `LLM_KEY_2` (chave reserva), `LLM_MODEL`, `GATEWAY_URL` (veja as explicações no `.env.example`).
+   Outros opcionais: `LLM_KEY_2` (chave reserva), `LLM_MODEL`, `GATEWAY_URL` (veja as explicações no `.env.example`).
 6. Teste: abra `https://anamnese.SEU-USUARIO.workers.dev/api/ai`. Tem que aparecer `"configured":true`.
-7. No app publicado, vá em **Ajustes › Inteligência artificial**, digite o **Código de acesso** (o mesmo do `ACCESS_CODE`) e toque em **Testar conexão** (tem que aparecer “Conectado”).
+7. No app publicado, **entre na sua conta** (mesmo e-mail e senha do DPOC Clínico) e, em **Ajustes › Inteligência artificial**, toque em **Testar conexão** (tem que aparecer “Conectado”). Sem conta: digite o **Código de acesso** (o mesmo do `ACCESS_CODE`).
 
 **Para atualizar depois** de mudar o código: `npm run deploy` de novo. Os segredos continuam lá.
 
 ## 6b. Alternativa: publicar na Vercel
 
 1. Entre em <https://vercel.com/new> com a sua conta do GitHub e importe o repositório `eckermann33/anamnese`.
-2. A Vercel detecta o Vite sozinha. Antes de clicar em **Deploy**, abra **Environment Variables** e adicione `LLM_KEY` (e, se quiser, `ACCESS_CODE`, `ALLOWED_ORIGINS`, `LLM_KEY_2`).
+2. A Vercel detecta o Vite sozinha. Antes de clicar em **Deploy**, abra **Environment Variables** e adicione `LLM_KEY` e `FIREBASE_PROJECT_ID` = `dpoc-clinico` (e, se quiser, `ACCESS_CODE`, `ALLOWED_ORIGINS`, `LLM_KEY_2`).
 3. Clique em **Deploy**. Cada `git push` no branch principal publica de novo sozinho.
 4. Teste em `https://SEU-PROJETO.vercel.app/api/ai`.
 
@@ -140,6 +140,8 @@ Depois de aberto uma vez, o app funciona offline. Quando sair versão nova apare
 | --- | --- |
 | “A IA não está configurada no servidor (falta LLM_KEY)” | Faltou o passo 4 da Cloudflare (ou a variável na Vercel). Local: confira o `.env.local` e reinicie o `npm run dev`. |
 | “Código de acesso da IA inválido” | O código em Ajustes tem que ser igual ao `ACCESS_CODE` do servidor. |
+| “Entre com a sua conta para usar a IA” | Entre na conta (Ajustes › Conta) ou use o código de acesso. Para liberar sem login, tire `FIREBASE_PROJECT_ID` do `wrangler.jsonc`. |
+| “Este endereço não está na lista de domínios autorizados” | Autorize o domínio do app no Firebase: [CONTAS.md](CONTAS.md). |
 | “Origem não autorizada” | O `ALLOWED_ORIGINS` tem que ter o endereço exato do site, com `https://` e sem `/` no final. |
 | “Cota da IA esgotada” | Limite do plano grátis da Groq. Espere um pouco ou configure `LLM_KEY_2` com outra chave/provedor. |
 | `npm: command not found` | O Node não foi instalado. Volte ao passo 1 e feche/abra o Terminal. |
@@ -148,5 +150,5 @@ Depois de aberto uma vez, o app funciona offline. Quando sair versão nova apare
 ## Privacidade (LGPD)
 
 - O app só pede **iniciais**, idade, sexo, ocupação, procedência, estado civil e leito (opcional). Nunca nome completo, CPF ou endereço.
-- Tudo fica **só no aparelho**. Faça backup em **Ajustes › Dados › Exportar backup**.
+- **Sem conta**, tudo fica **só no aparelho**; **com conta**, também na nuvem ([CONTAS.md](CONTAS.md)). Backup em **Ajustes › Dados › Exportar backup**.
 - Para a IA vai apenas o texto clínico, **sem iniciais e sem leito**. Mesmo assim, não escreva dados que identifiquem o paciente nos campos de texto livre.

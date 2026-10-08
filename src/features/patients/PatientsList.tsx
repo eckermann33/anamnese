@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Search, Users, AlertTriangle, UserRound } from 'lucide-react';
+import { Search, Users, AlertTriangle, UploadCloud, UserRound } from 'lucide-react';
+import { useCloud } from '../../cloud/CloudProvider';
+import { useToast } from '../../components/ui/Overlays';
+import { Button } from '../../components/ui/Button';
 import { db } from '../../db';
 import { Page, EmptyState } from '../../components/ui/Page';
 import { ListRow, ListSection } from '../../components/ui/List';
@@ -14,6 +17,8 @@ type Filter = 'ativo' | 'alta' | 'todos';
 export function PatientsList() {
   const [filter, setFilter] = useState<Filter>('ativo');
   const [q, setQ] = useState('');
+  const cloud = useCloud();
+  const toast = useToast();
 
   const data = useLiveQuery(async () => {
     const [patients, encounters] = await Promise.all([db.patients.toArray(), db.encounters.toArray()]);
@@ -37,8 +42,20 @@ export function PatientsList() {
   }, [data, filter, q]);
 
   return (
-    <Page title="Pacientes" subtitle="Salvos só neste aparelho">
+    <Page title="Pacientes" subtitle={cloud.session?.mode === 'cloud' ? 'Sincronizados na sua conta' : 'Salvos só neste aparelho'}>
       <div className="page-pad stack gap-3">
+        {cloud.localOnly > 0 && (
+          <div className="banner banner-info" role="note">
+            <UploadCloud size={20} aria-hidden="true" />
+            <div className="banner-body">
+              <span className="banner-title">{cloud.localOnly} paciente(s) só neste aparelho</span>
+              <span className="banner-text">Salvos antes de você entrar na conta. Envie para vê-los também nos outros aparelhos.</span>
+            </div>
+            <Button variant="tinted" size="sm" onClick={() => void cloud.migrateLocal().then((n) => toast(`${n} paciente(s) enviados para a sua conta`, 'success'))}>
+              Enviar
+            </Button>
+          </div>
+        )}
         <label className="search-field">
           <Search size={18} aria-hidden="true" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por iniciais, leito ou queixa" aria-label="Buscar paciente" />

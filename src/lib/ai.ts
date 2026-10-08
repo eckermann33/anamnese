@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { OUTPUT_SCHEMAS, type AiMode, type AiOutputs, type AiRequest, type AiTask } from '../../shared/ai/schemas';
 import { readPrefs } from './settings';
+import { currentAuthToken } from './authToken';
 
 /* ==========================================================================
    CLIENTE DA IA (navegador)
@@ -19,6 +20,7 @@ export class AiError extends Error {
 
 type InputOf<T extends AiTask> = Extract<AiRequest, { task: T }>['input'];
 
+
 export async function callAI<T extends AiTask>(task: T, input: InputOf<T>, mode: AiMode, signal?: AbortSignal): Promise<AiOutputs[T]> {
   const prefs = readPrefs();
   if (!prefs.aiEnabled) throw new AiError('disabled', 'As funções de IA estão desligadas em Ajustes.');
@@ -30,6 +32,9 @@ export async function callAI<T extends AiTask>(task: T, input: InputOf<T>, mode:
   const timeout = window.setTimeout(() => controller.abort(), 125_000);
   signal?.addEventListener('abort', () => controller.abort());
 
+  // com conta: o token do login vai junto (o servidor pode exigir login para a IA)
+  const token = await currentAuthToken();
+
   let res: Response;
   try {
     res = await fetch(prefs.aiEndpoint || '/api/ai', {
@@ -37,6 +42,7 @@ export async function callAI<T extends AiTask>(task: T, input: InputOf<T>, mode:
       headers: {
         'content-type': 'application/json',
         ...(prefs.aiAccessCode ? { 'x-access-code': prefs.aiAccessCode } : {}),
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ task, mode, input }),
       signal: controller.signal,
@@ -103,12 +109,12 @@ export function useAi<T extends AiTask>(task: T) {
 }
 
 /** Verifica se o servidor de IA está no ar (Ajustes). */
-export async function checkAiServer(): Promise<{ online: boolean; configured?: boolean; accessCodeRequired?: boolean; model?: string; error?: string }> {
+export async function checkAiServer(): Promise<{ online: boolean; configured?: boolean; accessCodeRequired?: boolean; loginRequired?: boolean; model?: string; error?: string }> {
   const prefs = readPrefs();
   try {
     const res = await fetch(prefs.aiEndpoint || '/api/ai', { method: 'GET' });
     const body = await res.json();
-    return { online: !!body.ok, configured: body.configured, accessCodeRequired: body.accessCodeRequired, model: body.model };
+    return { online: !!body.ok, configured: body.configured, accessCodeRequired: body.accessCodeRequired, loginRequired: body.loginRequired, model: body.model };
   } catch {
     return { online: false, error: 'Servidor de IA indisponível.' };
   }

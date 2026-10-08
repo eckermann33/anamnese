@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { TabBar } from './components/ui/TabBar';
 import { OverlayProvider } from './components/ui/Overlays';
 import { PrefsProvider } from './lib/settings';
+import { CloudProvider } from './cloud/CloudProvider';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { AtenderHome } from './features/atender/AtenderHome';
 import { PatientsList } from './features/patients/PatientsList';
@@ -20,26 +21,28 @@ export default function App() {
   return (
     <PrefsProvider>
       <OverlayProvider>
-        <BrowserRouter>
-          <div className="app">
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="/" element={<Navigate to="/atender" replace />} />
-                <Route path="/atender" element={<AtenderHome />} />
-                <Route path="/templates" element={<TemplatesPage />} />
-                <Route path="/atendimento/:id/:step?" element={<EncounterRoute />} />
-                <Route path="/pacientes" element={<PatientsList />} />
-                <Route path="/pacientes/:id" element={<PatientDetail />} />
-                <Route path="/evolucao/:patientId/:evoId" element={<EvolutionEditor />} />
-                <Route path="/treino/*" element={<TrainingHome />} />
-                <Route path="/ajustes" element={<SettingsPage />} />
-                <Route path="*" element={<Navigate to="/atender" replace />} />
-              </Routes>
-            </Suspense>
-            <TabBar />
-            <UpdatePrompt />
-          </div>
-        </BrowserRouter>
+        <CloudProvider>
+          <BrowserRouter>
+            <div className="app">
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/atender" replace />} />
+                  <Route path="/atender" element={<AtenderHome />} />
+                  <Route path="/templates" element={<TemplatesPage />} />
+                  <Route path="/atendimento/:id/:step?" element={<EncounterRoute />} />
+                  <Route path="/pacientes" element={<PatientsList />} />
+                  <Route path="/pacientes/:id" element={<PatientDetail />} />
+                  <Route path="/evolucao/:patientId/:evoId" element={<EvolutionEditor />} />
+                  <Route path="/treino/*" element={<TrainingHome />} />
+                  <Route path="/ajustes" element={<SettingsPage />} />
+                  <Route path="*" element={<Navigate to="/atender" replace />} />
+                </Routes>
+              </Suspense>
+              <TabBar />
+            </div>
+          </BrowserRouter>
+        </CloudProvider>
+        <UpdatePrompt />
       </OverlayProvider>
     </PrefsProvider>
   );

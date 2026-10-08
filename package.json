@@ -18,7 +18,9 @@
   "dependencies": {
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",
+    "firebase": "^12.19.0",
     "immer": "^11.1.21",
+    "jose": "^6.2.12",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.53.0",
     "react": "^19.3.0",

@@ -8,6 +8,7 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/clinical.css';
 import './styles/evolution.css';
+import './styles/account.css';
 
 // Pede ao navegador para não apagar o banco local quando faltar espaço.
 if (navigator.storage?.persist) void navigator.storage.persist().catch(() => undefined);

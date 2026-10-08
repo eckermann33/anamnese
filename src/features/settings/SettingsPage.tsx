@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import {
   BookMarked,
+  CloudOff,
   Download,
   Eye,
   Info,
@@ -29,10 +30,14 @@ import { shareOrDownload } from '../../lib/share';
 import { APP_NAME, CLINICAL_DISCLAIMER, DEFAULT_AI_ENDPOINT } from '../../config/app';
 import { REFERENCES } from '../../../shared/references';
 import type { Mode, Setting } from '../../clinical/types';
+import { useCloud } from '../../cloud/CloudProvider';
+import { AccountSection } from '../account/AccountSection';
 
 /** Aba "Ajustes". */
 export function SettingsPage() {
   const { prefs, setPrefs } = usePrefs();
+  const cloud = useCloud();
+  const inAccount = cloud.session?.mode === 'cloud';
   const confirm = useConfirm();
   const toast = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -47,7 +52,10 @@ export function SettingsPage() {
     setTesting(false);
     if (!s.online) setAiStatus('Servidor de IA indisponível.');
     else if (!s.configured) setAiStatus('Servidor no ar, mas sem chave configurada (LLM_KEY).');
-    else setAiStatus(`Conectado · modelo ${s.model ?? '—'}${s.accessCodeRequired ? ' · exige código de acesso' : ''}`);
+    else
+      setAiStatus(
+        `Conectado · modelo ${s.model ?? '—'}${s.loginRequired ? ` · exige login${inAccount ? ' (ok, você está na conta)' : ''}` : ''}${s.accessCodeRequired ? ' · exige código de acesso' : ''}`,
+      );
   }
 
   async function doExport() {
@@ -75,18 +83,40 @@ export function SettingsPage() {
 
   async function wipe() {
     const ok = await confirm({
-      title: 'Apagar TODOS os dados?',
-      message: 'Pacientes, atendimentos, evoluções, treinos e preferências serão apagados deste aparelho. Não há como desfazer. Exporte um backup antes, se precisar.',
+      title: inAccount ? 'Apagar tudo deste aparelho?' : 'Apagar TODOS os dados?',
+      message: inAccount
+        ? 'Você sai da conta e este aparelho fica sem nenhum dado do app (pacientes, preferências, cache). O que já está na sua conta continua na nuvem.'
+        : 'Pacientes, atendimentos, evoluções, treinos e preferências serão apagados deste aparelho. Não há como desfazer. Exporte um backup antes, se precisar.',
       confirmLabel: 'Apagar tudo',
       destructive: true,
     });
     if (!ok) return;
+    if (inAccount) await cloud.signOut({ wipeLocal: true });
     await wipeAllData();
     window.location.replace('/');
   }
 
+  async function wipeCloud() {
+    const ok = await confirm({
+      title: 'Apagar seus dados da nuvem?',
+      message:
+        'Todos os pacientes, atendimentos, evoluções e treinos desta conta serão apagados da nuvem, deste aparelho e dos outros aparelhos na próxima sincronização. A conta (login) continua existindo. Não há como desfazer — exporte um backup antes.',
+      confirmLabel: 'Apagar da nuvem',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await cloud.deleteCloudData();
+      toast('Dados da conta apagados', 'success');
+    } catch (e) {
+      toast((e as Error).message, 'error');
+    }
+  }
+
   return (
     <Page title="Ajustes">
+      <AccountSection />
+
       <ListSection header="Atendimento" footer="Padrões para novos atendimentos (dá para mudar em cada um).">
         <div className="list-row">
           <span className="list-row-title" style={{ flex: 'none' }}>
@@ -201,10 +231,19 @@ export function SettingsPage() {
         <ListRow icon={PlugZap} title={testing ? 'Testando…' : 'Testar conexão'} subtitle={aiStatus ?? undefined} accent onClick={testAi} />
       </ListSection>
 
-      <ListSection header="Dados" icons footer="Tudo fica salvo apenas neste aparelho (IndexedDB). Faça backup regularmente.">
+      <ListSection
+        header="Dados"
+        icons
+        footer={
+          inAccount
+            ? 'Os dados ficam neste aparelho (para funcionar offline) e na sua conta. O backup continua útil como cópia extra.'
+            : 'Tudo fica salvo apenas neste aparelho (IndexedDB). Faça backup regularmente.'
+        }
+      >
         <ListRow icon={Download} title="Exportar backup" subtitle="Arquivo .json com todos os dados" onClick={doExport} chevron />
         <ListRow icon={Upload} title="Importar backup" onClick={() => fileRef.current?.click()} chevron />
-        <ListRow icon={Trash2} iconTone="red" title="Apagar tudo" destructive onClick={wipe} />
+        <ListRow icon={Trash2} iconTone="red" title={inAccount ? 'Apagar tudo deste aparelho' : 'Apagar tudo'} destructive onClick={wipe} />
+        {inAccount && <ListRow icon={CloudOff} iconTone="red" title="Apagar meus dados da nuvem" destructive onClick={() => void wipeCloud()} />}
       </ListSection>
       <input
         ref={fileRef}

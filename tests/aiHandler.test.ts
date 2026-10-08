@@ -95,3 +95,56 @@ describe('função de IA (compatível com OpenAI)', () => {
     expect(hyp.length / 4).toBeLessThan(6000);
   });
 });
+
+describe('login obrigatório para a IA (FIREBASE_PROJECT_ID)', () => {
+  const env = { LLM_KEY: 'k', FIREBASE_PROJECT_ID: 'meu-projeto' };
+
+  async function setupKeys() {
+    const { generateKeyPair, exportJWK, createLocalJWKSet, SignJWT } = await import('jose');
+    const { setFirebaseKeysForTests } = await import('../server/firebaseAuth');
+    const { publicKey, privateKey } = await generateKeyPair('RS256');
+    const jwk = { ...(await exportJWK(publicKey)), kid: 'k1', alg: 'RS256' };
+    setFirebaseKeysForTests(createLocalJWKSet({ keys: [jwk] }));
+    const sign = (aud: string, sub = 'uid-1') =>
+      new SignJWT({})
+        .setProtectedHeader({ alg: 'RS256', kid: 'k1' })
+        .setIssuer(`https://securetoken.google.com/${aud}`)
+        .setAudience(aud)
+        .setSubject(sub)
+        .setIssuedAt()
+        .setExpirationTime('1h')
+        .sign(privateKey);
+    return { sign };
+  }
+
+  it('sem token: 401 pedindo login', async () => {
+    await setupKeys();
+    vi.stubGlobal('fetch', vi.fn());
+    const res = await handleAiRequest(post(request), env);
+    expect(res.status).toBe(401);
+    expect((await res.json()).code).toBe('login');
+  });
+
+  it('token válido do projeto: passa', async () => {
+    const { sign } = await setupKeys();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(providerResponse(JSON.stringify(okSuggestion))));
+    const res = await handleAiRequest(post(request, { authorization: `Bearer ${await sign('meu-projeto')}` }), env);
+    expect(res.status).toBe(200);
+  });
+
+  it('token de outro projeto: 401', async () => {
+    const { sign } = await setupKeys();
+    vi.stubGlobal('fetch', vi.fn());
+    const res = await handleAiRequest(post(request, { authorization: `Bearer ${await sign('outro-projeto')}` }), env);
+    expect(res.status).toBe(401);
+  });
+
+  it('o código de acesso continua valendo como alternativa', async () => {
+    await setupKeys();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(providerResponse(JSON.stringify(okSuggestion))));
+    const res = await handleAiRequest(post(request, { 'x-access-code': 'abc' }), { ...env, ACCESS_CODE: 'abc' });
+    expect(res.status).toBe(200);
+    const info = await (await handleAiRequest(new Request('http://localhost/api/ai'), env)).json();
+    expect(info.loginRequired).toBe(true);
+  });
+});

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AiRequestSchema, OUTPUT_SCHEMAS, type AiRequest, type AiTask } from '../shared/ai/schemas.js';
 import { buildSystemPrompt, buildUserPrompt, TASK_CONFIG } from './prompts.js';
+import { bearerToken, verifyFirebaseToken } from './firebaseAuth.js';
 
 /* ==========================================================================
    FUNÇÃO DE IA (servidor) — provedores compatíveis com a API da OpenAI
@@ -20,6 +21,8 @@ import { buildSystemPrompt, buildUserPrompt, TASK_CONFIG } from './prompts.js';
      LLM_MODEL      → modelo principal (padrão: openai/gpt-oss-120b)
      LLM_MODEL_2    → modelo reserva   (padrão: qwen/qwen3-32b)
      ACCESS_CODE    → código de acesso exigido pelo app    [recomendado]
+     FIREBASE_PROJECT_ID → exige login (conta do app) para usar a IA;
+                      com ACCESS_CODE também definido, vale um OU outro
      ALLOWED_ORIGINS→ origens permitidas, separadas por vírgula [recomendado]
    ========================================================================== */
 
@@ -31,6 +34,7 @@ export interface AiEnv {
   LLM_MODEL?: string;
   LLM_MODEL_2?: string;
   ACCESS_CODE?: string;
+  FIREBASE_PROJECT_ID?: string;
   ALLOWED_ORIGINS?: string;
 }
 
@@ -82,7 +86,7 @@ function corsHeaders(origin: string | null, env: AiEnv): Record<string, string> 
     return {
       'access-control-allow-origin': origin,
       'access-control-allow-methods': 'POST, GET, OPTIONS',
-      'access-control-allow-headers': 'content-type, x-access-code',
+      'access-control-allow-headers': 'content-type, x-access-code, authorization',
       vary: 'origin',
     };
   }
@@ -208,7 +212,14 @@ export async function handleAiRequest(request: Request, env: AiEnv): Promise<Res
   // GET = status (Ajustes › Testar conexão)
   if (request.method === 'GET') {
     return json(
-      { ok: true, status: 'online', configured: list.length > 0, accessCodeRequired: !!env.ACCESS_CODE, model: list[0]?.model ?? null },
+      {
+        ok: true,
+        status: 'online',
+        configured: list.length > 0,
+        accessCodeRequired: !!env.ACCESS_CODE && !env.FIREBASE_PROJECT_ID,
+        loginRequired: !!env.FIREBASE_PROJECT_ID,
+        model: list[0]?.model ?? null,
+      },
       200,
       cors,
     );
@@ -216,7 +227,22 @@ export async function handleAiRequest(request: Request, env: AiEnv): Promise<Res
   if (request.method !== 'POST') return json({ ok: false, error: 'Use POST.' }, 405, cors);
 
   if (!originAllowed(request, env)) return json({ ok: false, code: 'origin', error: 'Origem não autorizada.' }, 403, cors);
-  if (env.ACCESS_CODE && request.headers.get('x-access-code') !== env.ACCESS_CODE) {
+  const codeOk = !!env.ACCESS_CODE && request.headers.get('x-access-code') === env.ACCESS_CODE;
+  if (env.FIREBASE_PROJECT_ID) {
+    // login obrigatório (ou o código de acesso, se existir)
+    const token = bearerToken(request);
+    if (!codeOk && !(token && (await verifyFirebaseToken(token, env.FIREBASE_PROJECT_ID)))) {
+      return json(
+        {
+          ok: false,
+          code: 'login',
+          error: `Entre com a sua conta para usar a IA (Ajustes › Conta).${env.ACCESS_CODE ? ' Ou informe o código de acesso.' : ''}`,
+        },
+        401,
+        cors,
+      );
+    }
+  } else if (env.ACCESS_CODE && !codeOk) {
     return json({ ok: false, code: 'access_code', error: 'Código de acesso da IA inválido. Confira em Ajustes › Inteligência artificial.' }, 401, cors);
   }
   if (!list.length) {

@@ -791,6 +791,9 @@ a.list-row:active {
   font-size: var(--fs-subhead);
   line-height: var(--lh-subhead);
 }
+.banner > svg {
+  flex: none;
+}
 .banner-body {
   flex: 1 1 auto;
   min-width: 0;
