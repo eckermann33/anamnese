@@ -6,7 +6,7 @@ import {
   APP_SHORT_NAME,
   APP_DESCRIPTION,
   THEME_COLOR_LIGHT,
-} from './src/config/app';
+} from './src/config/app.js';
 
 /**
  * Plugin de desenvolvimento: expõe /api/ai no próprio servidor do Vite.
@@ -36,8 +36,8 @@ function devApiPlugin(env: Record<string, string>): Plugin {
       // ssrLoadModule recarrega o handler quando você edita o código do servidor.
       const mod =
         'ssrLoadModule' in server
-          ? ((await server.ssrLoadModule('/server/aiHandler.ts')) as typeof import('./server/aiHandler'))
-          : await import('./server/aiHandler');
+          ? ((await server.ssrLoadModule('/server/aiHandler.ts')) as typeof import('./server/aiHandler.js'))
+          : await import('./server/aiHandler.js');
       const response = await mod.handleAiRequest(request, env);
       res.statusCode = response.status;
       response.headers.forEach((value, key) => res.setHeader(key, value));

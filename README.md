@@ -6,21 +6,34 @@ PWA (site instalável, funciona offline) de apoio à **anamnese, exame físico, 
 
 ## Status
 
-🚧 **Fase 1 em construção.** Já prontos:
+| Fase | Conteúdo | Situação |
+| --- | --- | --- |
+| 1 | Design system “Liquid Glass”, atendimento completo (anamnese ramificada, exame físico, hipóteses com IA, texto do prontuário), red flags, alertas de medicação, escores, IA no servidor | ✅ pronta — [como rodar e publicar](docs/FASE-1.md) |
+| 2 | Evolução diária (SOAP), sinais vitais, balanço hídrico, dispositivos, antibióticos, exames, problemas, passagem de plantão | 🚧 |
+| 3 | Treino OSCE com paciente simulado, ditado por voz, mais templates, busca rápida | ⏳ |
 
-- Design system “Liquid Glass” (tokens, vidro, componentes iOS: tab bar flutuante, sheets, chips, segmented, toggles, listas agrupadas).
-- Base clínica offline: 8 templates de queixa com anamnese ramificada, catálogo de sintomas (HDA ↔ ISDA), red flags em tempo real com conduta inicial, alertas de alergia/interações (nomes comerciais brasileiros, Beers, gestação), 15 escores calculados localmente, gerador do texto do prontuário (ID, QP, HDA, ISDA, AP, AF, HV, CSE, EF, HD, Conduta).
-- Referências curadas em ABNT, conferidas no PubMed.
-- Função de IA no servidor (`/api/ai`) no **mesmo esquema do invictus.med**: provedores compatíveis com a API da OpenAI (Groq `openai/gpt-oss-120b` + reserva `qwen/qwen3-32b`), cascata automática, resposta em JSON validada. A chave nunca vai para o navegador.
+A IA segue o **mesmo esquema do invictus.med**: provedores compatíveis com a API da OpenAI (Groq `openai/gpt-oss-120b` + reserva `qwen/qwen3-32b`), cascata automática e resposta em JSON validada. A chave fica só no servidor (Cloudflare Workers ou Vercel), nunca no navegador.
 
-Em andamento: telas do fluxo do atendimento, Ajustes/backup e guia de publicação.
-
-## Rodar os testes
+## Começo rápido
 
 ```bash
 npm install
-npm test
+cp .env.example .env.local   # preencha LLM_KEY (pode ser a chave Groq do invictus.med)
+npm run dev                  # http://localhost:5173
 ```
+
+Passo a passo completo (instalar o Node no Mac, publicar na Cloudflare/Vercel, instalar no iPhone): **[docs/FASE-1.md](docs/FASE-1.md)**.
+
+## Comandos
+
+| Comando | O que faz |
+| --- | --- |
+| `npm run dev` | servidor de desenvolvimento (com `/api/ai` local) |
+| `npm test` | testes automáticos |
+| `npm run typecheck` | checagem do TypeScript |
+| `npm run check:contrast` | confere o contraste das cores (WCAG AA) |
+| `npm run build` / `npm run preview` | gera e roda a versão final |
+| `npm run deploy` | publica na Cloudflare Workers |
 
 ## Estrutura
 
@@ -32,4 +45,5 @@ server/         função de IA (regras e prompts) — roda no servidor
 shared/         contratos da IA e referências (usados pelo app e pelo servidor)
 api/ai.ts       adaptador Vercel     ·     worker/index.ts   adaptador Cloudflare Workers
 tests/          testes automatizados
+docs/           guias de cada fase (rodar localmente e publicar)
 ```

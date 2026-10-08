@@ -88,7 +88,7 @@
 
   --label: #000000;
   --label-2: #6e6e73;               /* secundário — 5,1:1 sobre branco */
-  --label-3: #6e6e73;               /* placeholders — mantido AA */
+  --label-3: #636366;               /* placeholders — AA também dentro de campos */
   --label-inverse: #ffffff;
 
   --accent: #007aff;                /* azul do sistema: ícones, toggles, foco, progresso */
@@ -169,7 +169,7 @@
 
     --label: #ffffff;
     --label-2: #aeaeb2;
-    --label-3: #98989d;
+    --label-3: #a1a1a6;
     --label-inverse: #000000;
 
     --accent: #0a84ff;
@@ -230,7 +230,7 @@
 
   --label: #ffffff;
   --label-2: #aeaeb2;
-  --label-3: #98989d;
+  --label-3: #a1a1a6;
   --label-inverse: #000000;
 
   --accent: #0a84ff;

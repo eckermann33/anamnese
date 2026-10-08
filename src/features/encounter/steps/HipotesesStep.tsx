@@ -50,16 +50,28 @@ export function HipotesesStep() {
   );
   const aiReasons = Object.fromEntries((enc.hypotheses?.result.hypotheses ?? []).flatMap((h) => h.scores.map((s) => [s.id, s.reason])));
 
+  // A IA recebe só os escores que as regras LOCAIS indicam; os que ela mesma
+  // sugerir aparecem na tela, mas não mudam a entrada (senão a análise recém-
+  // -gerada já nasceria "desatualizada").
+  const localScoreLines = useMemo(
+    () =>
+      applicableScores(ctx, [])
+        .map((def) => computeScore(def, ctx))
+        .map((s) => `${s.def.name}: ${formatNumber(s.total, 1)} — ${s.interpretation.text}${s.missing.length ? ` (faltam: ${s.missing.join(', ')})` : ''}`),
+    [ctx],
+  );
   const caseText = useMemo(
     () =>
       caseTextForAI(enc, patient, {
         redFlags: redFlags.map((f) => `${f.title} (${f.criteria.join(', ')})`),
-        scores: scores.map((s) => `${s.def.name}: ${formatNumber(s.total, 1)} — ${s.interpretation.text}${s.missing.length ? ` (faltam: ${s.missing.join(', ')})` : ''}`),
+        scores: localScoreLines,
         medAlerts: medAlerts.map((a) => `${a.title}: ${a.detail}`),
       }),
-    [enc, patient, redFlags, scores, medAlerts],
+    [enc, patient, redFlags, localScoreLines, medAlerts],
   );
-  const hash = hashString(caseText);
+  // O hash ignora a lista de HD: adicionar uma sugestão da própria IA à HD
+  // não deve marcar a análise como desatualizada.
+  const hash = useMemo(() => hashString(caseText.replace(/\n\nHipóteses do usuário: [^\n]*$/, '')), [caseText]);
   const stale = enc.hypotheses && enc.hypotheses.inputHash !== hash;
 
   async function analyze() {

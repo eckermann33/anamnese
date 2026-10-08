@@ -112,12 +112,12 @@ export function ProntuarioStep() {
           Exportar PDF
         </Button>
         {prefs.aiEnabled && (
-          <Button variant="gray" icon={Wand2} loading={polish.loading} disabled={!online} onClick={review}>
-            Revisar redação (IA)
+          <Button variant="gray" icon={Wand2} loading={polish.loading} disabled={!online} onClick={review} aria-label="Revisar redação com IA">
+            Revisar (IA)
           </Button>
         )}
-        <Button variant="gray" icon={RotateCcw} onClick={regenerate}>
-          Regenerar dos dados
+        <Button variant="gray" icon={RotateCcw} onClick={regenerate} aria-label="Regenerar o texto a partir dos dados">
+          Regenerar
         </Button>
         {polish.error && (
           <p className="t-footnote c-red" role="alert">

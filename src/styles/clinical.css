@@ -805,6 +805,13 @@ button.chip-sm[aria-pressed='true'] {
 .note-actions > p {
   grid-column: 1 / -1;
 }
+/* Em telas estreitas o rótulo quebra em vez de vazar para o botão vizinho. */
+.note-actions > .btn {
+  min-width: 0;
+  padding-inline: var(--s-3);
+  white-space: normal;
+  text-align: center;
+}
 
 /* ---------- Início / listas ---------- */
 .hero-card {

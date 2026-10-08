@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "icons": "node scripts/generate-icons.mjs",
-    "check:contrast": "node scripts/check-contrast.mjs"
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "deploy": "npm run build && npx wrangler@4 deploy"
   },
   "dependencies": {
     "dexie": "^4.4.6",
