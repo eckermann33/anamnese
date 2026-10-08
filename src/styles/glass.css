@@ -1,0 +1,115 @@
+/* ==========================================================================
+   MATERIAL "LIQUID GLASS"
+   --------------------------------------------------------------------------
+   Use SOMENTE na camada de navegação e controles: tab bar, barra superior,
+   botões principais, sheets, menus, alertas e toasts.
+   Conteúdo clínico (textos, formulários, resultados) fica em superfícies
+   sólidas (.card, .list-group) para garantir leitura.
+
+   Anatomia do vidro:
+   1. fundo translúcido            → var(--glass-bg)
+   2. desfoque + saturação          → backdrop-filter
+   3. borda de 1px com brilho       → var(--glass-border)
+   4. reflexo especular no topo     → ::before com gradiente
+   5. sombra difusa em camadas      → var(--glass-shadow)
+   ========================================================================== */
+
+.glass,
+.glass-strong,
+.glass-accent {
+  position: relative;
+  isolation: isolate;
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-inner-light), 0 0 0 0.5px var(--glass-edge), var(--glass-shadow);
+}
+
+.glass {
+  background-color: var(--glass-bg);
+}
+
+/* Variante mais opaca: para vidro que carrega bastante texto (sheets, alertas). */
+.glass-strong {
+  background-color: var(--glass-bg-strong);
+}
+
+/* Vidro tingido de azul: botão principal. Opacidade alta = contraste AA. */
+.glass-accent {
+  background-color: var(--accent-glass);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* Reflexo especular: luz batendo na borda de cima. */
+.glass::before,
+.glass-strong::before,
+.glass-accent::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-specular);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glass-accent::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 55%);
+}
+
+/* Navegador sem backdrop-filter: deixa o vidro mais opaco para manter leitura. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background-color: var(--glass-bg-strong);
+  }
+}
+
+/* ---------- Reduzir transparência (sistema) ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background-color: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass-accent {
+    background-color: var(--accent-fill);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .glass::before,
+  .glass-strong::before,
+  .glass-accent::before {
+    display: none;
+  }
+}
+
+/* ---------- Reduzir transparência (Ajustes do app) ---------- */
+:root[data-transparency='reduced'] .glass,
+:root[data-transparency='reduced'] .glass-strong {
+  background-color: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-transparency='reduced'] .glass-accent {
+  background-color: var(--accent-fill);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-transparency='reduced'] .glass::before,
+:root[data-transparency='reduced'] .glass-strong::before,
+:root[data-transparency='reduced'] .glass-accent::before {
+  display: none;
+}
+
+/* Cantos contínuos ("squircle") onde o navegador suportar.
+   O squircle "come" menos o canto, então aumentamos um pouco o raio. */
+@supports (corner-shape: squircle) {
+  .card,
+  .list-group,
+  .alert-panel {
+    corner-shape: squircle;
+    border-radius: calc(var(--r-lg) * 1.5);
+  }
+}
