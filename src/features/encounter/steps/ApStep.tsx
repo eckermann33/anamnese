@@ -24,7 +24,7 @@ export function ApStep() {
         ))}
       </datalist>
 
-      <section className="qsection">
+      <section className="qsection" id="ap-doencas">
         <h2 className="qsection-title">Doenças prévias</h2>
         <div className="qsection-card stack gap-3">
           <ChipSelect
@@ -43,7 +43,7 @@ export function ApStep() {
         </div>
       </section>
 
-      <section className="qsection">
+      <section className="qsection" id="ap-alergias">
         <h2 className="qsection-title">Alergias</h2>
         <div className="qsection-card stack gap-3">
           <label className="row between gap-3">
@@ -84,7 +84,7 @@ export function ApStep() {
         </div>
       </section>
 
-      <section className="qsection">
+      <section className="qsection" id="ap-medicacoes">
         <h2 className="qsection-title">Medicações em uso</h2>
         <div className="qsection-card stack gap-3">
           <label className="row between gap-3">
@@ -123,7 +123,7 @@ export function ApStep() {
         </div>
       </section>
 
-      <section className="qsection">
+      <section className="qsection" id="ap-cirurgias">
         <h2 className="qsection-title">Cirurgias e internações</h2>
         <div className="qsection-card stack gap-4">
           <ItemListEditor<HistoryItem>

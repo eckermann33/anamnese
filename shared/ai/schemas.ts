@@ -244,7 +244,7 @@ export const DictationField = z.object({
   id: z.string().max(80),
   label: z.string().max(200),
   type: z.string().max(20),
-  options: z.array(z.object({ value: z.string().max(80), label: z.string().max(200) })).max(60).optional(),
+  options: z.array(z.object({ value: z.string().max(80), label: z.string().max(200) })).max(200).optional(),
 });
 
 export const DictationInput = z.object({

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Check, ChevronLeft, ChevronRight, CloudOff, List, Loader2 } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, CloudOff, List, Loader2, Mic } from 'lucide-react';
 import { EncounterProvider, useEncounter } from './EncounterContext';
 import { STEPS, perfilTitle, visibleSteps } from './steps';
 import { Page, EmptyState } from '../../components/ui/Page';
@@ -20,6 +20,10 @@ import { ExameStep } from './steps/ExameStep';
 import { HipotesesStep } from './steps/HipotesesStep';
 import { ProntuarioStep } from './steps/ProntuarioStep';
 import { FileQuestion } from 'lucide-react';
+import { StepSearch } from './SearchSheet';
+import { DictationSheet } from './DictationSheet';
+import { usePrefs } from '../../lib/settings';
+import type { SearchEntry } from './search';
 
 const STEP_COMPONENT: Record<StepId, ComponentType> = {
   config: ConfigStep,
@@ -62,6 +66,10 @@ function EncounterFlow() {
   const navigate = useNavigate();
   const { enc, patient, update, redFlags, saveState } = useEncounter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [pendingAnchor, setPendingAnchor] = useState<string | null>(null);
+  const [dictOpen, setDictOpen] = useState(false);
+  const { prefs } = usePrefs();
 
   const steps = visibleSteps(enc, patient);
   const step = (STEPS.some((s) => s.id === stepParam) ? stepParam : enc.step) as StepId;
@@ -83,6 +91,34 @@ function EncounterFlow() {
 
   const visibleFlags = redFlags.filter((f) => !enc.dismissedAlerts.includes(f.id));
 
+  // Busca: vai para a etapa e, depois que ela renderizar, rola até a pergunta e destaca.
+  useEffect(() => {
+    if (!pendingAnchor) return;
+    let tries = 0;
+    let timer = 0;
+    const tick = () => {
+      const el = document.getElementById(pendingAnchor);
+      if (el) {
+        const nav = document.querySelector('.navbar')?.getBoundingClientRect().height ?? 0;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - nav - 12, behavior: reduce ? 'auto' : 'smooth' });
+        el.classList.add('search-hit');
+        window.setTimeout(() => el.classList.remove('search-hit'), 1800);
+        setPendingAnchor(null);
+      } else if (++tries < 20) timer = window.setTimeout(tick, 60);
+      else setPendingAnchor(null);
+    };
+    timer = window.setTimeout(tick, 80); // depois do "volta ao topo" da troca de etapa
+    return () => window.clearTimeout(timer);
+  }, [pendingAnchor, current.id]);
+
+  function goToResult(r: SearchEntry) {
+    setMenuOpen(false);
+    setQuery('');
+    if (r.step !== current.id) navigate(`/atendimento/${id}/${r.step}`);
+    setPendingAnchor(r.anchor ?? null);
+  }
+
   return (
     <>
       <Page
@@ -101,7 +137,8 @@ function EncounterFlow() {
                 <Check size={16} aria-label="Salvo no aparelho" />
               )}
             </span>
-            <Button variant="glass" iconOnly icon={List} aria-label="Ir para etapa" onClick={() => setMenuOpen(true)} />
+            {prefs.aiEnabled && <Button variant="glass" iconOnly icon={Mic} aria-label="Ditar o caso" onClick={() => setDictOpen(true)} />}
+            <Button variant="glass" iconOnly icon={List} aria-label="Etapas e busca" onClick={() => setMenuOpen(true)} />
           </>
         }
         sticky={
@@ -145,33 +182,38 @@ function EncounterFlow() {
       </nav>
 
       <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title="Etapas do atendimento" subtitle="Navegação livre — tudo é salvo automaticamente">
-        <ol className="list-group step-menu">
-          {steps.map((s, i) => {
-            const Icon = s.icon;
-            return (
-              <li key={s.id}>
-                <button
-                  type="button"
-                  className="list-row"
-                  aria-current={i === index ? 'step' : undefined}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    go(i);
-                  }}
-                >
-                  <span className="list-row-icon" data-tone={i === index ? undefined : 'gray'} aria-hidden="true">
-                    <Icon size={18} strokeWidth={2} />
-                  </span>
-                  <span className="list-row-body">
-                    <span className="list-row-title">{s.id === 'perfil' ? perfilTitle(enc, patient) : s.title}</span>
-                  </span>
-                  <span className="list-row-value tabular">{i + 1}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+        <StepSearch q={query} setQ={setQuery} steps={steps.map((s) => s.id)} onGo={goToResult} />
+        {!query.trim() && (
+          <ol className="list-group step-menu mt-3">
+            {steps.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    className="list-row"
+                    aria-current={i === index ? 'step' : undefined}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      go(i);
+                    }}
+                  >
+                    <span className="list-row-icon" data-tone={i === index ? undefined : 'gray'} aria-hidden="true">
+                      <Icon size={18} strokeWidth={2} />
+                    </span>
+                    <span className="list-row-body">
+                      <span className="list-row-title">{s.id === 'perfil' ? perfilTitle(enc, patient) : s.title}</span>
+                    </span>
+                    <span className="list-row-value tabular">{i + 1}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </Sheet>
+
+      <DictationSheet open={dictOpen} onClose={() => setDictOpen(false)} />
     </>
   );
 }

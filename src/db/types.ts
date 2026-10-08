@@ -10,7 +10,7 @@ import type {
   SystemId,
   TriMap,
 } from '../clinical/types';
-import type { HypothesesResult } from '../../shared/ai/schemas';
+import type { HypothesesResult, OsceCaseData, OsceFeedbackResult } from '../../shared/ai/schemas';
 
 /* ==========================================================================
    MODELO DE DADOS (o que fica salvo no IndexedDB do aparelho)
@@ -267,12 +267,18 @@ export interface TrainingSession {
   id: string;
   createdAt: number;
   updatedAt: number;
-  caseMeta: { system?: string; difficulty: string; title: string };
+  caseMeta: { system?: string; difficulty: 'facil' | 'medio' | 'dificil'; title: string };
+  /** De onde veio o caso: biblioteca curada (offline) ou gerado pela IA. */
+  source: 'biblioteca' | 'ia';
   /** Caso completo (oculto do estudante até o fim). */
-  caseData: unknown;
+  caseData: OsceCaseData;
   messages: Array<{ role: 'student' | 'patient' | 'exam'; text: string; at: number }>;
+  /** Tempo da estação em minutos (0 = sem cronômetro). */
+  timeLimitMin: number;
+  startedAt: number;
+  endedAt?: number;
   studentDiagnosis?: string;
-  feedback?: unknown;
+  feedback?: OsceFeedbackResult;
   status: 'em_andamento' | 'finalizado';
 }
 

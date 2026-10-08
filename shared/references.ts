@@ -297,6 +297,49 @@ export const REFERENCES: Reference[] = [
     topics: ['lombalgia'],
   },
 
+  // ---------------- Queixas da Fase 3 ----------------
+  {
+    id: 'chest-tosse-2018',
+    short: 'CHEST — Classificação e manejo da tosse no adulto (2018)',
+    abnt: 'IRWIN, R. S. et al. Classification of cough as a symptom in adults and management algorithms: CHEST guideline and expert panel report. **Chest**, v. 153, n. 1, p. 196-209, 2018. DOI: https://doi.org/10.1016/j.chest.2017.10.016.',
+    url: 'https://doi.org/10.1016/j.chest.2017.10.016',
+    topics: ['tosse', 'tosse crônica'],
+  },
+  {
+    id: 'ms-tb-2019',
+    short: 'Ministério da Saúde — Manual de recomendações para o controle da tuberculose (2019)',
+    abnt: 'BRASIL. Ministério da Saúde. Secretaria de Vigilância em Saúde. **Manual de recomendações para o controle da tuberculose no Brasil**. 2. ed. atual. Brasília: Ministério da Saúde, 2019.',
+    topics: ['tuberculose', 'tosse', 'sintomático respiratório'],
+  },
+  {
+    id: 'idsa-diarreia-2017',
+    short: 'IDSA — Diarreia infecciosa (2017)',
+    abnt: 'SHANE, A. L. et al. 2017 Infectious Diseases Society of America clinical practice guidelines for the diagnosis and management of infectious diarrhea. **Clinical Infectious Diseases**, v. 65, n. 12, p. e45-e80, 2017. DOI: https://doi.org/10.1093/cid/cix669.',
+    url: 'https://doi.org/10.1093/cid/cix669',
+    topics: ['diarreia', 'desidratação'],
+  },
+  {
+    id: 'ehra-palpitacoes-2011',
+    short: 'EHRA — Manejo do paciente com palpitações (2011)',
+    abnt: 'RAVIELE, A. et al. Management of patients with palpitations: a position paper from the European Heart Rhythm Association. **Europace**, v. 13, n. 7, p. 920-934, 2011. DOI: https://doi.org/10.1093/europace/eur130.',
+    url: 'https://doi.org/10.1093/europace/eur130',
+    topics: ['palpitações', 'arritmia'],
+  },
+  {
+    id: 'hints-2009',
+    short: 'Kattah et al. — HINTS na síndrome vestibular aguda (2009)',
+    abnt: 'KATTAH, J. C. et al. HINTS to diagnose stroke in the acute vestibular syndrome: three-step bedside oculomotor examination more sensitive than early MRI diffusion-weighted imaging. **Stroke**, v. 40, n. 11, p. 3504-3510, 2009. DOI: https://doi.org/10.1161/STROKEAHA.109.551234.',
+    url: 'https://doi.org/10.1161/STROKEAHA.109.551234',
+    topics: ['tontura', 'vertigem', 'AVC'],
+  },
+  {
+    id: 'idsa-itu-2011',
+    short: 'IDSA/ESCMID — Cistite e pielonefrite não complicadas em mulheres (2011)',
+    abnt: 'GUPTA, K. et al. International clinical practice guidelines for the treatment of acute uncomplicated cystitis and pyelonephritis in women: a 2010 update by the Infectious Diseases Society of America and the European Society for Microbiology and Infectious Diseases. **Clinical Infectious Diseases**, v. 52, n. 5, p. e103-e120, 2011. DOI: https://doi.org/10.1093/cid/ciq257.',
+    url: 'https://doi.org/10.1093/cid/ciq257',
+    topics: ['infecção urinária', 'disúria', 'pielonefrite'],
+  },
+
   // ---------------- Internação e evolução (Fase 2) ----------------
   {
     id: 'fast-hug-2005',

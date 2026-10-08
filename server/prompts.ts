@@ -86,7 +86,7 @@ Seja justo, específico e construtivo.`,
 
   dictation: `TAREFA: distribuir o que o profissional ditou nos campos do formulário.
 - Use SOMENTE os IDs de campo fornecidos. Para campos com opções, use exatamente o "value" de uma opção (múltipla escolha: values separados por "|").
-- Campos de sintoma (type "symptom"): valor "sim" (presente) ou "nao" (negado).
+- Campos de sintoma (tipo "symptom"): valor "sim" (presente) ou "nao" (negado). No campo "sintomas" e nos campos "tri": pares valor:sim ou valor:nao separados por "|" (ex.: "febre:sim|tosse:nao").
 - Números com ponto decimal; pressão arterial vai em dois campos (PAS e PAD) quando existirem.
 - Não invente nada que não foi dito. Se algo não couber em nenhum campo, coloque em "unassigned".
 - Em "excerpt", copie o trecho do ditado que justifica cada valor.`,
@@ -160,8 +160,14 @@ export function buildUserPrompt(req: AiRequest): string {
         .join('\n');
       return `ROTEIRO DO CASO (JSON):\n${JSON.stringify(req.input.caseData)}\n\nTRANSCRIÇÃO:\n${t}\n\nHIPÓTESE DIAGNÓSTICA DO ESTUDANTE: ${req.input.studentDiagnosis || '(não informada)'}`;
     }
-    case 'dictation':
-      return `CAMPOS DISPONÍVEIS (JSON):\n${JSON.stringify(req.input.fields)}\n\nDITADO:\n${req.input.transcript}`;
+    case 'dictation': {
+      // Formato compacto (uma linha por campo) — economiza tokens em relação ao JSON.
+      const lines = req.input.fields.map((f) => {
+        const o = f.options?.length ? ` — opções: ${f.options.map((x) => (x.label === x.value ? x.value : `${x.value}=${x.label}`)).join('; ')}` : '';
+        return `- ${f.id} [${f.type}] ${f.label}${o}`;
+      });
+      return `CAMPOS DISPONÍVEIS (id [tipo] rótulo — opções: valor=rótulo):\n${lines.join('\n')}\n\nDITADO:\n${req.input.transcript}`;
+    }
   }
 }
 

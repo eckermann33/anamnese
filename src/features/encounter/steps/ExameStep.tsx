@@ -40,7 +40,7 @@ export function ExameStep() {
 
   return (
     <div className="stack gap-4">
-      <section className="qsection">
+      <section className="qsection" id="exame-vitais">
         <h2 className="qsection-title">Sinais vitais</h2>
         <div className="page-pad">
           <VitalsForm
@@ -52,7 +52,7 @@ export function ExameStep() {
         </div>
       </section>
 
-      <section className="qsection">
+      <section className="qsection" id="exame-antropometria">
         <h2 className="qsection-title">Antropometria</h2>
         <div className="qsection-card">
           <div className="row gap-3 wrap">

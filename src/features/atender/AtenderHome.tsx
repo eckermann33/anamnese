@@ -80,7 +80,7 @@ export function AtenderHome() {
       )}
 
       <ListSection header="Atalhos" icons>
-        <ListRow icon={Sparkles} title="Templates por queixa" subtitle="Dor torácica, dispneia, dor abdominal, cefaleia, febre, síncope, lombalgia…" to="/templates" />
+        <ListRow icon={Sparkles} title="Templates por queixa" subtitle="14 queixas: dor torácica, dispneia, dor abdominal, tosse, febre, tontura, déficit neurológico…" to="/templates" />
       </ListSection>
 
       <Disclaimer icon={ShieldAlert}>{CLINICAL_DISCLAIMER}</Disclaimer>

@@ -727,6 +727,204 @@ const dvt: Rule = (c) => {
   };
 };
 
+
+/* ---------------- Queixas da Fase 3 ---------------- */
+
+const vestibularCentral: Rule = (c) => {
+  const isDizzy = c.template.id === 'tontura' || yes(c, 'vertigem') || yes(c, 'tontura');
+  if (!isDizzy) return null;
+  const criteria = hits([
+    [c.triHas('ton_central', 'cefaleia_subita'), 'cefaleia súbita/occipital'],
+    [c.triHas('ton_central', 'diplopia') || yes(c, 'diplopia'), 'diplopia'],
+    [c.triHas('ton_central', 'fala_degluticao'), 'disartria/disfagia'],
+    [c.triHas('ton_central', 'fraqueza_dormencia'), 'déficit focal'],
+    [c.triHas('ton_central', 'nao_anda'), 'incapaz de andar sem apoio'],
+  ]);
+  if (criteria.length) {
+    return {
+      id: 'vertigem_central',
+      title: 'Tontura com sinais centrais — possível AVC de fossa posterior',
+      severity: 'critico',
+      criteria,
+      conduct: [
+        'Acionar o protocolo de AVC; registrar a última vez em que foi visto bem.',
+        'Glicemia capilar; exame neurológico com marcha e coordenação.',
+        'Neuroimagem urgente (RM com difusão é a mais sensível; TC exclui hemorragia).',
+        'Não dar alta com diagnóstico de “labirintite”.',
+      ],
+      refs: ['hints-2009', 'aha-avc-2026'],
+    };
+  }
+  if (!c.has('ton_padrao', 'aguda_continua')) return null;
+  return {
+    id: 'vertigem_central',
+    title: 'Síndrome vestibular aguda — excluir AVC (HINTS)',
+    severity: 'alerta',
+    criteria: ['tontura contínua de início agudo'],
+    conduct: [
+      'Fazer o HINTS: impulso cefálico, nistagmo e teste de skew.',
+      'Impulso cefálico normal, nistagmo que muda de direção ou skew presente → tratar como AVC até prova em contrário.',
+      'RM precoce pode ser falsamente negativa nas primeiras 48 h.',
+    ],
+    refs: ['hints-2009'],
+  };
+};
+
+const palpitationHighRisk: Rule = (c) => {
+  if (!(c.template.id === 'palpitacoes' || yes(c, 'palpitacoes'))) return null;
+  const criteria = hits([
+    [c.triHas('pal_alarme', 'sincope') || yes(c, 'sincope'), 'síncope associada'],
+    [c.triHas('pal_alarme', 'esforco') || c.has('pal_gatilho', 'esforco'), 'palpitação durante o esforço'],
+    [c.triHas('pal_alarme', 'dor_dispneia'), 'dor torácica/dispneia associadas'],
+    [c.triHas('pal_alarme', 'cardiopatia'), 'cardiopatia estrutural'],
+    [c.triHas('pal_alarme', 'morte_subita'), 'morte súbita precoce na família'],
+    [hypotension(c), 'hipotensão'],
+    [c.vitals.fc !== undefined && c.vitals.fc >= 150, `FC ${c.vitals.fc} bpm`],
+  ]);
+  if (!criteria.length) return null;
+  const unstable = hypotension(c) || alteredMental(c);
+  return {
+    id: 'arritmia',
+    title: unstable ? 'Taquiarritmia com instabilidade' : 'Palpitação de alto risco',
+    severity: unstable ? 'critico' : 'alerta',
+    criteria,
+    conduct: unstable
+      ? ['Monitorização, acesso venoso, O₂ se necessário.', 'ECG de 12 derivações imediato.', 'Instabilidade por taquiarritmia → cardioversão elétrica sincronizada conforme protocolo.']
+      : ['ECG de 12 derivações (procure pré-excitação, QT longo, Brugada, bloqueios).', 'Monitorização e eletrólitos (K, Mg).', 'Ecocardiograma e avaliação cardiológica antes da alta.'],
+    refs: ['ehra-palpitacoes-2011'],
+  };
+};
+
+const pyelonephritis: Rule = (c) => {
+  if (!(c.template.id === 'disuria' || yes(c, 'disuria'))) return null;
+  const criteria = hits([
+    [c.triHas('uri_complicada', 'febre') || feverPresent(c), 'febre'],
+    [c.triHas('uri_complicada', 'lombar') || yes(c, 'dor_lombar'), 'dor lombar/flanco'],
+    [c.triHas('uri_complicada', 'vomitos') || yes(c, 'vomitos'), 'vômitos'],
+    [c.triHas('uri_complicada', 'gestante') || c.profile === 'gestante', 'gestação'],
+    [c.triHas('uri_complicada', 'sonda'), 'sonda/procedimento urológico'],
+    [c.triHas('uri_complicada', 'imuno'), 'imunossupressão/DM descompensado'],
+  ]);
+  if (!criteria.length) return null;
+  const upper = criteria.some((x) => /febre|lombar/.test(x));
+  return {
+    id: 'pielonefrite',
+    title: upper ? 'Possível pielonefrite (ITU alta)' : 'ITU complicada',
+    severity: 'alerta',
+    criteria,
+    conduct: [
+      'Urocultura com antibiograma ANTES do antibiótico.',
+      'Avaliar critérios de sepse (qSOFA) e hidratação; vômitos ou instabilidade → internação.',
+      'Antibiótico conforme perfil local de resistência; na gestante, escolher fármaco seguro.',
+      'Considerar imagem se não melhorar em 48–72 h, obstrução ou cálculo.',
+    ],
+    refs: ['idsa-itu-2011'],
+  };
+};
+
+const severeDiarrhea: Rule = (c) => {
+  if (!(c.template.id === 'diarreia' || yes(c, 'diarreia'))) return null;
+  const criteria = hits([
+    [c.triHas('dia_desidratacao', 'nao_bebe'), 'incapaz de manter hidratação oral'],
+    [c.triHas('dia_desidratacao', 'letargia'), 'letargia/confusão'],
+    [c.triHas('dia_alarme', 'sangue') || c.has('dia_aspecto', 'sangue') || yes(c, 'hematoquezia'), 'sangue nas fezes'],
+    [c.triHas('dia_alarme', 'dor_intensa'), 'dor abdominal intensa'],
+    [c.triHas('dia_alarme', 'idoso_imuno'), 'grupo de risco'],
+    [c.has('dia_epi', 'atb', 'internacao'), 'antibiótico/internação recente (C. difficile?)'],
+  ]);
+  if (!criteria.length) return null;
+  const severe = c.triHas('dia_desidratacao', 'nao_bebe', 'letargia') || hypotension(c);
+  return {
+    id: 'diarreia_grave',
+    title: severe ? 'Diarreia com desidratação grave' : 'Diarreia com sinais de alarme',
+    severity: severe ? 'critico' : 'alerta',
+    criteria,
+    conduct: [
+      severe ? 'Hidratação venosa imediata (cristaloide em bolus), monitorizar diurese.' : 'Reidratação oral; reavaliar sinais de desidratação.',
+      'Eletrólitos e função renal se desidratação moderada/grave.',
+      'Disenteria com febre → coprocultura; antibiótico/internação recente → pesquisar C. difficile.',
+      'Dor desproporcional → excluir isquemia mesentérica e outras causas de abdome agudo.',
+    ],
+    refs: ['idsa-diarreia-2017'],
+  };
+};
+
+const hemoptysis: Rule = (c) => {
+  if (!c.triHas('tos_alarme', 'hemoptise_volume')) return null;
+  return {
+    id: 'hemoptise',
+    title: 'Hemoptise volumosa',
+    severity: 'critico',
+    criteria: ['sangue vivo em quantidade'],
+    conduct: [
+      'Proteger a via aérea; decúbito sobre o lado que sangra, se conhecido.',
+      'Acesso venoso, hemograma, coagulograma, tipagem.',
+      'Radiografia/angiotomografia de tórax; acionar broncoscopia/radiologia intervencionista.',
+      'Suspender anticoagulantes/antiagregantes conforme o caso.',
+    ],
+  };
+};
+
+const tuberculosis: Rule = (c) => {
+  const cough = c.template.id === 'tosse' || yes(c, 'tosse');
+  if (!cough) return null;
+  const longCough = c.template.id === 'tosse' && (c.complaintDays ?? 0) >= 21;
+  const constitutional = yes(c, 'sudorese_noturna') && (yes(c, 'perda_peso') || feverPresent(c));
+  if (!longCough && !constitutional) return null;
+  return {
+    id: 'tuberculose',
+    title: 'Sintomático respiratório — investigar tuberculose',
+    severity: 'alerta',
+    criteria: hits([
+      [longCough, 'tosse há 3 semanas ou mais'],
+      [yes(c, 'sudorese_noturna'), 'sudorese noturna'],
+      [yes(c, 'perda_peso'), 'perda de peso'],
+      [yes(c, 'hemoptise'), 'hemoptise'],
+    ]),
+    conduct: [
+      'Máscara cirúrgica no paciente e ambiente ventilado (precaução para aerossóis).',
+      'Escarro: teste rápido molecular (TRM-TB) e/ou baciloscopia + cultura.',
+      'Radiografia de tórax; oferecer teste de HIV.',
+      'Notificar caso confirmado e avaliar contatos.',
+    ],
+    refs: ['ms-tb-2019'],
+  };
+};
+
+const angioedema: Rule = (c) => {
+  if (!(c.has('ede_local', 'labios_lingua') || c.triHas('ede_alarme', 'via_aerea'))) return null;
+  return {
+    id: 'angioedema',
+    title: 'Angioedema — risco de obstrução da via aérea',
+    severity: 'critico',
+    criteria: hits([
+      [c.has('ede_local', 'labios_lingua'), 'edema de lábios/língua'],
+      [c.triHas('ede_alarme', 'via_aerea'), 'sinais de via aérea (voz abafada, dispneia)'],
+      [c.has('ede_meds', 'ieca'), 'uso de IECA (angioedema bradicinérgico)'],
+    ]),
+    conduct: [
+      'Avaliar via aérea imediatamente; preparar via aérea difícil.',
+      'Urticária/hipotensão/broncoespasmo (anafilaxia) → adrenalina IM 0,5 mg (adulto) (conferir dose, função renal/hepática, alergias e interações antes de prescrever).',
+      'Em uso de IECA → suspender (a resposta à adrenalina/anti-histamínico pode ser pobre).',
+    ],
+  };
+};
+
+const strokeWindow: Rule = (c) => {
+  if (c.template.id !== 'deficit_neurologico') return null;
+  if (!c.has('dn_lkw') && !c.has('dn_acordou')) {
+    return {
+      id: 'avc_tempo',
+      title: 'Registre a hora: última vez visto bem',
+      severity: 'alerta',
+      criteria: ['déficit neurológico agudo sem horário registrado'],
+      conduct: ['Pergunte a familiares/testemunhas a última vez em que o paciente estava normal.', 'Acione o protocolo de AVC sem esperar a confirmação do horário.'],
+      refs: ['aha-avc-2026'],
+    };
+  }
+  return null;
+};
+
 export const RED_FLAG_RULES: Rule[] = [
   shock,
   respiratory,
@@ -756,6 +954,14 @@ export const RED_FLAG_RULES: Rule[] = [
   lowBackSerious,
   fallAnticoag,
   dvt,
+  vestibularCentral,
+  palpitationHighRisk,
+  pyelonephritis,
+  severeDiarrhea,
+  hemoptysis,
+  tuberculosis,
+  angioedema,
+  strokeWindow,
 ];
 
 /** Avalia todas as regras. Críticos primeiro. */

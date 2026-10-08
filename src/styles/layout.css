@@ -76,7 +76,8 @@
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  min-width: 0;
+  /* os botões nunca encolhem por baixo do título: quem cede é o título (reticências) */
+  min-width: max-content;
 }
 .navbar-side[data-side='right'] {
   justify-content: flex-end;

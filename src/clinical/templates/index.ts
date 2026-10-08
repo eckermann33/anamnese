@@ -7,6 +7,13 @@ import { cefaleia } from './cefaleia';
 import { febre } from './febre';
 import { sincope } from './sincope';
 import { lombalgia } from './lombalgia';
+import { tosse } from './tosse';
+import { diarreia } from './diarreia';
+import { palpitacoes } from './palpitacoes';
+import { tontura } from './tontura';
+import { edema } from './edema';
+import { disuria } from './disuria';
+import { deficitNeurologico } from './deficitNeurologico';
 import { outra } from './outra';
 
 /* ==========================================================================
@@ -15,7 +22,23 @@ import { outra } from './outra';
    adicione aqui na lista TEMPLATES.
    ========================================================================== */
 
-export const TEMPLATES: ComplaintTemplate[] = [dorToracica, dispneia, dorAbdominal, cefaleia, febre, sincope, lombalgia, outra];
+export const TEMPLATES: ComplaintTemplate[] = [
+  dorToracica,
+  dispneia,
+  dorAbdominal,
+  cefaleia,
+  febre,
+  sincope,
+  lombalgia,
+  tosse,
+  diarreia,
+  palpitacoes,
+  tontura,
+  edema,
+  disuria,
+  deficitNeurologico,
+  outra,
+];
 
 export const TEMPLATE_BY_ID: Record<string, ComplaintTemplate> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
 

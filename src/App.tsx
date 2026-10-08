@@ -15,7 +15,7 @@ const PatientDetail = lazy(() => import('./features/patients/PatientDetail').the
 const EvolutionEditor = lazy(() => import('./features/evolution/EvolutionEditor').then((m) => ({ default: m.EvolutionEditor })));
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 const TemplatesPage = lazy(() => import('./features/templates/TemplatesPage').then((m) => ({ default: m.TemplatesPage })));
-const TrainingHome = lazy(() => import('./features/training/TrainingHome').then((m) => ({ default: m.TrainingHome })));
+const TrainingRoutes = lazy(() => import('./features/training/TrainingRoutes').then((m) => ({ default: m.TrainingRoutes })));
 
 export default function App() {
   return (
@@ -33,7 +33,7 @@ export default function App() {
                   <Route path="/pacientes" element={<PatientsList />} />
                   <Route path="/pacientes/:id" element={<PatientDetail />} />
                   <Route path="/evolucao/:patientId/:evoId" element={<EvolutionEditor />} />
-                  <Route path="/treino/*" element={<TrainingHome />} />
+                  <Route path="/treino/*" element={<TrainingRoutes />} />
                   <Route path="/ajustes" element={<SettingsPage />} />
                   <Route path="*" element={<Navigate to="/atender" replace />} />
                 </Routes>
