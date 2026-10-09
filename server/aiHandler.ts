@@ -57,11 +57,31 @@ interface Provider {
 /** Monta a cascata. Use modelos DIFERENTES nos níveis (se o modelo cair, a reserva salva). */
 function providers(env: AiEnv): Provider[] {
   const list: Provider[] = [];
-  const url1 = env.GATEWAY_URL || DEFAULT_URL;
-  if (env.LLM_KEY) list.push({ tag: 'LLM1', url: url1, key: env.LLM_KEY, model: env.LLM_MODEL || DEFAULT_MODEL });
-  const key2 = env.LLM_KEY_2 || env.LLM_KEY;
-  if (key2) list.push({ tag: 'LLM2', url: env.GATEWAY_URL_2 || url1, key: key2, model: env.LLM_MODEL_2 || DEFAULT_MODEL_2 });
+  // trim: ao colar a chave no painel da Vercel/Cloudflare é comum vir espaço ou quebra de linha junto
+  const v = (x?: string) => x?.trim() || '';
+  const key1 = v(env.LLM_KEY);
+  const url1 = v(env.GATEWAY_URL) || DEFAULT_URL;
+  if (key1) list.push({ tag: 'LLM1', url: url1, key: key1, model: v(env.LLM_MODEL) || DEFAULT_MODEL });
+  const key2 = v(env.LLM_KEY_2) || key1;
+  if (key2) list.push({ tag: 'LLM2', url: v(env.GATEWAY_URL_2) || url1, key: key2, model: v(env.LLM_MODEL_2) || DEFAULT_MODEL_2 });
   return list;
+}
+
+/** Explica a falha da cascata e anexa os códigos (ex.: "LLM1:401 LLM2:401") para diagnóstico. */
+export function failureMessage(codes: string[]): string {
+  const all = (re: RegExp) => codes.length > 0 && codes.every((c) => re.test(c));
+  const msg = all(/:(401|403)$/)
+    ? 'A chave da IA foi recusada pelo provedor. Confira a LLM_KEY no servidor (chave inteira, sem espaços) e publique de novo.'
+    : all(/:(400|404)$/)
+      ? 'O provedor recusou o pedido (modelo indisponível?). Confira LLM_MODEL/LLM_MODEL_2 no servidor.'
+      : all(/:timeout$/)
+        ? 'A IA demorou demais para responder. Tente de novo.'
+        : all(/:rede$/)
+          ? 'O servidor não conseguiu falar com o provedor da IA. Tente de novo.'
+          : all(/:(json|schema|cortado|resp)$/)
+            ? 'A IA respondeu fora do formato esperado. Tente de novo.'
+            : 'A IA não conseguiu responder agora. Tente de novo.';
+  return `${msg} (código: ${codes.join(' ')})`;
 }
 
 /* ---------- HTTP utilitários ---------- */
@@ -178,7 +198,11 @@ async function callProvider(p: Provider, req: AiRequest): Promise<CallResult> {
   } catch {
     return { ok: false, code: 'rede' };
   }
-  if (!res.ok) return { ok: false, code: String(res.status) };
+  if (!res.ok) {
+    // aparece nos logs da Vercel/Cloudflare (sem a chave) para diagnóstico
+    console.warn(`[ai] ${p.tag} ${p.model} → HTTP ${res.status}: ${txt.slice(0, 300)}`);
+    return { ok: false, code: String(res.status) };
+  }
 
   let content = '';
   let finish = '';
@@ -274,17 +298,12 @@ export async function handleAiRequest(request: Request, env: AiEnv): Promise<Res
     if (r.ok) return json({ ok: true, task: parsed.task as AiTask, data: r.data, model: r.model }, 200, cors);
     codes.push(`${p.tag}:${r.code}`);
   }
-  const last = codes[codes.length - 1] ?? '';
   const quota = codes.every((c) => /:(429|413)$/.test(c));
   return json(
     {
       ok: false,
       code: codes.join(' '),
-      error: quota
-        ? 'Cota da IA esgotada no momento. Tente de novo em alguns minutos.'
-        : /timeout/.test(last)
-          ? 'A IA demorou demais para responder. Tente de novo.'
-          : 'A IA não conseguiu responder agora. Tente de novo.',
+      error: quota ? 'Cota da IA esgotada no momento. Tente de novo em alguns minutos.' : failureMessage(codes),
     },
     quota ? 429 : 503,
     cors,
