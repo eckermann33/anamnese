@@ -1,0 +1,439 @@
+/* ==========================================================================
+   EVOLUÇÃO E ACOMPANHAMENTO (Fase 2)
+   Conteúdo clínico em superfícies sólidas; vidro só na barra inferior.
+   ========================================================================== */
+
+/* ---------- Linha de lista com ação lateral (problemas) ---------- */
+.list-row-split {
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
+}
+.list-row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 52px;
+  padding: var(--s-3) 0 var(--s-3) var(--s-4);
+  text-align: left;
+  color: inherit;
+}
+.list-row-main:active {
+  background: var(--fill);
+}
+.list-row-side {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  color: var(--label-2);
+}
+.list-row-side[aria-pressed='true'] {
+  color: var(--green-text);
+}
+.list-row-side:active {
+  background: var(--fill);
+}
+.list-row[data-dim] .list-row-title {
+  color: var(--label-2);
+  text-decoration: line-through;
+  text-decoration-color: var(--separator-opaque);
+}
+
+/* Grupo recolhível dentro de uma lista ("Retirados", "Suspensos") */
+.list-row-details {
+  position: relative;
+}
+.list-row-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 58px;
+  height: 0.5px;
+  background: var(--separator);
+}
+.list-row-details > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: var(--tap);
+  padding-left: 58px;
+}
+.list-row-details > summary::-webkit-details-marker {
+  display: none;
+}
+.list-row-details > summary::after {
+  content: '›';
+  margin-left: auto;
+  color: var(--label-2);
+  font-size: 20px;
+  transition: transform var(--dur) var(--ease-spring);
+}
+.list-row-details[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+/* ---------- Tendências dos sinais vitais ---------- */
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s-2);
+}
+.trend-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--accent);
+  min-width: 0;
+}
+.trend-tile[data-tone='orange'] { color: var(--orange-text); }
+.trend-tile[data-tone='red'] { color: var(--red-text); }
+.trend-label {
+  font-size: var(--fs-footnote);
+  font-weight: 600;
+  color: var(--label-2);
+}
+.trend-value {
+  font-size: var(--fs-title3);
+  line-height: var(--lh-title3);
+  font-weight: 700;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+.trend-unit {
+  margin-left: 4px;
+  font-size: var(--fs-footnote);
+  font-weight: 500;
+  color: var(--label-2);
+}
+.trend-date {
+  font-size: var(--fs-caption);
+  color: var(--label-2);
+}
+.sparkline {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  height: 32px;
+  overflow: visible;
+}
+.sparkline-dot {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+.sparkline-dot[data-tone='orange'] { fill: var(--orange); }
+.sparkline-dot[data-tone='red'] { fill: var(--red); }
+.sparkline-dot[data-tone='green'] { fill: var(--green-text); }
+
+/* ---------- Tabela de exames ---------- */
+.lab-table-wrap {
+  overflow-x: auto;
+  padding: 0;
+  -webkit-overflow-scrolling: touch;
+}
+.lab-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-subhead);
+  font-variant-numeric: tabular-nums;
+}
+.lab-table th,
+.lab-table td {
+  padding: 8px 12px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 0.5px solid var(--separator);
+}
+.lab-table tr:last-child th,
+.lab-table tr:last-child td {
+  border-bottom: 0;
+}
+.lab-table thead th {
+  font-size: var(--fs-footnote);
+  color: var(--label-2);
+  font-weight: 600;
+  padding-block: 4px;
+}
+.lab-table th[scope='row'],
+.lab-table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  background: var(--surface);
+  font-weight: 600;
+}
+.lab-unit {
+  display: block;
+  font-size: var(--fs-caption);
+  font-weight: 400;
+  color: var(--label-2);
+}
+.lab-table td[data-tone='orange'] .lab-value { color: var(--orange-text); font-weight: 600; }
+.lab-table td[data-tone='red'] .lab-value { color: var(--red-text); font-weight: 700; }
+.lab-preview .lab-value[data-tone='orange'] { color: var(--orange-text); font-weight: 600; }
+.lab-preview .lab-value[data-tone='red'] { color: var(--red-text); font-weight: 700; }
+.lab-arrow {
+  margin-left: 4px;
+  color: var(--label-2);
+  font-size: var(--fs-footnote);
+}
+.lab-col-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--tap);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.lab-src {
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  background: var(--accent-tint);
+  font-size: 10px;
+  line-height: 16px;
+}
+.lab-raw {
+  max-height: 200px;
+  overflow: auto;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--fill);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+.lab-preview .kv {
+  align-items: center;
+}
+.contents {
+  display: contents;
+}
+
+/* ---------- Balanço hídrico ---------- */
+.fluid-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+.fluid-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.fluid-col legend {
+  padding: 0;
+  margin-bottom: var(--s-1);
+  font-weight: 600;
+}
+.fluid-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-2);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-variant-numeric: tabular-nums;
+}
+.fluid-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ---------- Editor da evolução ---------- */
+.jump-bar {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.jump-bar .chip {
+  min-width: 44px;
+  justify-content: center;
+}
+.evo-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.evo-date {
+  width: auto;
+  min-width: 150px;
+}
+
+/* Campo copiado da evolução anterior: contorno laranja até ser revisado */
+.carried {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: calc(var(--r-lg) + 6px);
+  background: var(--orange-tint);
+  outline: 1.5px solid var(--orange);
+  outline-offset: -1.5px;
+}
+.carried-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding-left: var(--s-1);
+}
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+}
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: var(--tap);
+  border-bottom: 0.5px solid var(--separator);
+}
+.todo-check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  color: var(--label-2);
+}
+.todo-row[data-done] .todo-check {
+  color: var(--green-text);
+}
+.todo-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--tap);
+  border: 0;
+  background: transparent;
+  color: var(--label);
+  font-size: var(--fs-body);
+}
+.todo-row[data-done] .todo-input {
+  color: var(--label-2);
+  text-decoration: line-through;
+}
+
+.checklist {
+  padding-block: var(--s-2);
+}
+.checklist-summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  list-style: none;
+  cursor: pointer;
+}
+.checklist-summary::-webkit-details-marker {
+  display: none;
+}
+.checklist-summary::after {
+  content: '›';
+  color: var(--label-2);
+  font-size: 22px;
+  transition: transform var(--dur) var(--ease-spring);
+}
+.checklist[open] .checklist-summary::after {
+  transform: rotate(90deg);
+}
+.checklist-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--s-2);
+}
+.checklist-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--s-2) 0;
+  text-align: left;
+  color: var(--label);
+  border-top: 0.5px solid var(--separator);
+}
+.checklist-letter {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-tint);
+  color: var(--accent-text);
+  font-weight: 700;
+  font-size: var(--fs-footnote);
+}
+
+.evo-text {
+  margin: 0;
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--separator);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ---------- SBAR ---------- */
+.sbar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.sbar-item {
+  display: flex;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.sbar-letter {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--accent-fill);
+  color: #fff;
+  font-weight: 700;
+}
+.sbar-text {
+  font-size: var(--fs-subhead);
+  line-height: var(--lh-subhead);
+  white-space: pre-wrap;
+}
+
+@media (max-width: 360px) {
+  .fluid-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lab-preview dd > button {
+  margin-left: auto;
+}

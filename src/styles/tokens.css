@@ -1,0 +1,295 @@
+/* ==========================================================================
+   TOKENS DE DESIGN
+   --------------------------------------------------------------------------
+   Todas as cores, tamanhos, raios, sombras e animações do app moram aqui,
+   como variáveis CSS. Para mudar o visual do app inteiro, mude aqui.
+
+   Regras:
+   - Uma única cor de destaque: azul do sistema (#007AFF).
+     Para TEXTO pequeno e botões preenchidos usamos tons da MESMA família um
+     pouco mais escuros (#0066CC / #0071E3), porque #007AFF com texto
+     branco ou sobre branco não atinge contraste WCAG AA (4,5:1).
+     Rode `npm run check:contrast` para conferir todos os pares.
+   - Cores semânticas: vermelho (red flags), laranja (atenção), verde (normal).
+   - Modo escuro automático via prefers-color-scheme (ou forçado em Ajustes
+     com data-theme="dark"/"light" no <html>).
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- Tipografia (escala iOS) ---------- */
+  --font-text: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+
+  --fs-large-title: 34px; --lh-large-title: 41px; --ls-large-title: 0.37px;
+  --fs-title1: 28px;      --lh-title1: 34px;      --ls-title1: 0.36px;
+  --fs-title2: 22px;      --lh-title2: 28px;      --ls-title2: 0.35px;
+  --fs-title3: 20px;      --lh-title3: 25px;      --ls-title3: 0.38px;
+  --fs-headline: 17px;    --lh-headline: 22px;    --ls-headline: -0.43px;
+  --fs-body: 17px;        --lh-body: 22px;        --ls-body: -0.43px;
+  --fs-callout: 16px;     --lh-callout: 21px;     --ls-callout: -0.31px;
+  --fs-subhead: 15px;     --lh-subhead: 20px;     --ls-subhead: -0.23px;
+  --fs-footnote: 13px;    --lh-footnote: 18px;    --ls-footnote: -0.08px;
+  --fs-caption: 12px;     --lh-caption: 16px;     --ls-caption: 0px;
+  --fs-caption2: 11px;    --lh-caption2: 13px;    --ls-caption2: 0.06px;
+
+  /* ---------- Espaçamento (grade de 4px) ---------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --gutter: 16px;
+
+  /* ---------- Raios (cantos bem arredondados) ---------- */
+  --r-xs: 10px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* ---------- Tamanhos de controle ---------- */
+  --tap: 44px;               /* área de toque mínima (Apple HIG) */
+  --control-h: 44px;
+  --control-h-lg: 52px;
+  --navbar-h: 52px;
+  --tabbar-h: 64px;
+  --toolbar-h: 64px;
+  --content-max: 720px;
+
+  /* ---------- Movimento ---------- */
+  --dur-fast: 200ms;
+  --dur: 280ms;
+  --dur-slow: 350ms;
+  /* Fallback para navegadores sem linear(): curva das sheets do iOS */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ---------- Cores — MODO CLARO ---------- */
+  --bg: #f2f2f7;                    /* fundo agrupado (systemGroupedBackground) */
+  --bg-plain: #ffffff;
+  --surface: #ffffff;               /* células, cards (superfície sólida) */
+  --surface-2: #f2f2f7;             /* superfície aninhada */
+  --surface-3: #e9e9ef;
+  --fill: rgba(120, 120, 128, 0.12);   /* chips, campos, segmented */
+  --fill-2: rgba(120, 120, 128, 0.16);
+  --fill-3: rgba(118, 118, 128, 0.24);
+  --separator: rgba(60, 60, 67, 0.22);
+  --separator-opaque: #d1d1d6;
+
+  --label: #000000;
+  --label-2: #6e6e73;               /* secundário — 5,1:1 sobre branco */
+  --label-3: #636366;               /* placeholders — AA também dentro de campos */
+  --label-inverse: #ffffff;
+
+  --accent: #007aff;                /* azul do sistema: ícones, toggles, foco, progresso */
+  --accent-text: #0066cc;           /* texto/links em azul — 5,6:1 */
+  --accent-fill: #0071e3;           /* fundo de botão preenchido com texto branco — 4,7:1 */
+  --accent-tint: rgba(0, 122, 255, 0.12);
+  --accent-tint-2: rgba(0, 122, 255, 0.2);
+  --accent-glass: rgba(0, 98, 204, 0.92); /* vidro tingido de azul — AA com texto branco */
+
+  --red: #ff3b30;
+  --red-text: #d70015;
+  --red-fill: #d70015;
+  --red-tint: rgba(255, 59, 48, 0.12);
+  --orange: #ff9500;
+  --orange-text: #c93400;
+  --orange-fill: #ff9500;
+  --on-orange: #000000;
+  --orange-tint: rgba(255, 149, 0, 0.16);
+  --green: #34c759;
+  --green-text: #1e7b34;
+  --green-tint: rgba(52, 199, 89, 0.14);
+  --yellow-tint: rgba(255, 204, 0, 0.22);
+
+  /* ---------- Vidro (Liquid Glass) ---------- */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-edge: rgba(0, 0, 0, 0.06);       /* contorno externo sutil para separar do branco */
+  --glass-specular: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.12) 38%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  --glass-inner-light: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-shadow:
+    0 0.5px 1px rgba(0, 0, 0, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.06),
+    0 20px 44px rgba(0, 0, 0, 0.07);
+
+  /* ---------- Sombras de conteúdo (bem discretas) ---------- */
+  --shadow-card: 0 0.5px 0 rgba(0, 0, 0, 0.03);
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.06);
+  --shadow-knob: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16), 0 3px 1px rgba(0, 0, 0, 0.1);
+  --backdrop: rgba(0, 0, 0, 0.28);
+
+  --focus-ring: 0 0 0 3px rgba(0, 122, 255, 0.45);
+}
+
+/* Curva spring de verdade (linear()) onde houver suporte. Overshoot ~3%: suave. */
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: linear(
+      0, 0.0072 1%, 0.0284 2%, 0.1117 4.1%, 0.2391 6.4%, 0.4006 9%, 0.6198 12.6%,
+      0.7792 15.8%, 0.8939 19.1%, 0.9396 20.9%, 0.9748 22.8%, 1.0007 24.8%, 1.0182 26.9%,
+      1.0282 29.1%, 1.0322 31.6%, 1.0306 34.6%, 1.0237 38.3%, 1.0057 47.1%, 0.9988 55.9%,
+      0.9982 63.7%, 1
+    );
+  }
+}
+
+/* ---------- Cores — MODO ESCURO ----------
+   Mesmo bloco duas vezes: automático (sistema) e forçado (Ajustes). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #000000;
+    --bg-plain: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --surface-3: #3a3a3c;
+    --fill: rgba(118, 118, 128, 0.24);
+    --fill-2: rgba(118, 118, 128, 0.32);
+    --fill-3: rgba(118, 118, 128, 0.4);
+    --separator: rgba(84, 84, 88, 0.6);
+    --separator-opaque: #38383a;
+
+    --label: #ffffff;
+    --label-2: #aeaeb2;
+    --label-3: #a1a1a6;
+    --label-inverse: #000000;
+
+    --accent: #0a84ff;
+    --accent-text: #409cff;
+    --accent-fill: #0071e3;
+    --accent-tint: rgba(10, 132, 255, 0.2);
+    --accent-tint-2: rgba(10, 132, 255, 0.3);
+    --accent-glass: rgba(0, 98, 204, 0.9);
+
+    --red: #ff453a;
+    --red-text: #ff6961;
+    --red-fill: #c4131d;
+    --red-tint: rgba(255, 69, 58, 0.2);
+    --orange: #ff9f0a;
+    --orange-text: #ffb340;
+    --orange-fill: #ff9f0a;
+    --on-orange: #000000;
+    --orange-tint: rgba(255, 159, 10, 0.2);
+    --green: #30d158;
+    --green-text: #30db5b;
+    --green-tint: rgba(48, 209, 88, 0.2);
+    --yellow-tint: rgba(255, 214, 10, 0.2);
+
+    --glass-bg: rgba(30, 30, 32, 0.55);
+    --glass-bg-strong: rgba(30, 30, 32, 0.78);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-edge: rgba(0, 0, 0, 0.4);
+    --glass-specular: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 38%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    --glass-inner-light: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+    --glass-shadow:
+      0 0.5px 1px rgba(0, 0, 0, 0.3),
+      0 2px 6px rgba(0, 0, 0, 0.25),
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      0 20px 44px rgba(0, 0, 0, 0.35);
+    --shadow-card: none;
+    --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.4);
+    --backdrop: rgba(0, 0, 0, 0.5);
+    --focus-ring: 0 0 0 3px rgba(10, 132, 255, 0.6);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #000000;
+  --bg-plain: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --surface-3: #3a3a3c;
+  --fill: rgba(118, 118, 128, 0.24);
+  --fill-2: rgba(118, 118, 128, 0.32);
+  --fill-3: rgba(118, 118, 128, 0.4);
+  --separator: rgba(84, 84, 88, 0.6);
+  --separator-opaque: #38383a;
+
+  --label: #ffffff;
+  --label-2: #aeaeb2;
+  --label-3: #a1a1a6;
+  --label-inverse: #000000;
+
+  --accent: #0a84ff;
+  --accent-text: #409cff;
+  --accent-fill: #0071e3;
+  --accent-tint: rgba(10, 132, 255, 0.2);
+  --accent-tint-2: rgba(10, 132, 255, 0.3);
+  --accent-glass: rgba(0, 98, 204, 0.9);
+
+  --red: #ff453a;
+  --red-text: #ff6961;
+  --red-fill: #c4131d;
+  --red-tint: rgba(255, 69, 58, 0.2);
+  --orange: #ff9f0a;
+  --orange-text: #ffb340;
+  --orange-fill: #ff9f0a;
+  --on-orange: #000000;
+  --orange-tint: rgba(255, 159, 10, 0.2);
+  --green: #30d158;
+  --green-text: #30db5b;
+  --green-tint: rgba(48, 209, 88, 0.2);
+  --yellow-tint: rgba(255, 214, 10, 0.2);
+
+  --glass-bg: rgba(30, 30, 32, 0.55);
+  --glass-bg-strong: rgba(30, 30, 32, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-edge: rgba(0, 0, 0, 0.4);
+  --glass-specular: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.04) 38%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  --glass-inner-light: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  --glass-shadow:
+    0 0.5px 1px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    0 20px 44px rgba(0, 0, 0, 0.35);
+  --shadow-card: none;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.4);
+  --backdrop: rgba(0, 0, 0, 0.5);
+  --focus-ring: 0 0 0 3px rgba(10, 132, 255, 0.6);
+}
+
+/* ---------- Acessibilidade: menos transparência ----------
+   Tratado em glass.css (no nível do componente), para funcionar igual
+   no modo claro e no escuro. */
+
+/* ---------- Acessibilidade: menos movimento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}
+:root[data-motion='reduced'] {
+  --dur-fast: 0ms;
+  --dur: 0ms;
+  --dur-slow: 0ms;
+}

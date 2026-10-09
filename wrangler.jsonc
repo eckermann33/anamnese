@@ -1,0 +1,22 @@
+// Cloudflare Workers — site + /api/ai no mesmo lugar (mesmo esquema do invictus.med).
+// Publicar:      npm run build && npx wrangler deploy
+// Chave da IA:   npx wrangler secret put LLM_KEY        (opcionais: LLM_KEY_2, ACCESS_CODE)
+// Variáveis não secretas (GATEWAY_URL, LLM_MODEL, LLM_MODEL_2, ALLOWED_ORIGINS) podem ir em "vars".
+// FIREBASE_PROJECT_ID: com ele, a IA só responde a quem estiver logado na conta do app
+// (ou a quem tiver o ACCESS_CODE). Apague a linha para liberar a IA sem login.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "anamnese",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "vars": {
+    "FIREBASE_PROJECT_ID": "dpoc-clinico"
+    // Exemplo: "ALLOWED_ORIGINS": "https://anamnese.SEU-USUARIO.workers.dev"
+  }
+}

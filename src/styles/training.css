@@ -1,0 +1,191 @@
+/* ==========================================================================
+   TREINO OSCE
+   Conversa em superfícies sólidas; vidro só no compositor flutuante.
+   ========================================================================== */
+
+.osce-cases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.osce-case {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--fill);
+  border: 1.5px solid transparent;
+  color: var(--label);
+  text-align: left;
+}
+.osce-case > svg {
+  flex: none;
+  color: var(--accent);
+}
+.osce-case[aria-checked='true'] {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+}
+
+.osce-door {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---------- Conversa ---------- */
+.osce-page {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 190px) !important;
+}
+.osce-chat-end {
+  /* rolar até o fim deixa a última mensagem acima do compositor flutuante */
+  scroll-margin-bottom: calc(env(safe-area-inset-bottom) + 210px);
+}
+.osce-chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  margin-bottom: var(--s-4);
+}
+.osce-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: msg-in var(--dur) var(--ease-spring) both;
+}
+.osce-msg[data-role='patient'] {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--label);
+  border-bottom-left-radius: 6px;
+  box-shadow: var(--shadow-card);
+}
+.osce-msg[data-role='student'] {
+  align-self: flex-end;
+  background: var(--accent-fill);
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+.osce-msg[data-role='exam'] {
+  align-self: stretch;
+  max-width: none;
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  background: var(--accent-tint);
+  color: var(--label);
+  border-radius: var(--r-md);
+  font-size: var(--fs-subhead);
+}
+.osce-msg[data-role='exam'] > svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--accent-text);
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .osce-msg { animation: none; }
+}
+.osce-typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+.osce-typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--label-3);
+  animation: typing 1.2s infinite ease-in-out;
+}
+.osce-typing i:nth-child(2) { animation-delay: 0.15s; }
+.osce-typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ---------- Compositor (vidro) ---------- */
+.osce-composer {
+  position: fixed;
+  z-index: 60;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
+  width: min(640px, calc(100% - 24px));
+  padding: 10px;
+  border-radius: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  animation: rise-in var(--dur) var(--ease-spring) both;
+}
+.osce-composer .input {
+  min-height: 46px;
+  background: var(--surface);
+}
+.osce-maneuvers {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.osce-maneuvers .chip {
+  flex: none;
+}
+.osce-timer {
+  font-variant-numeric: tabular-nums;
+  min-height: 30px;
+}
+
+/* ---------- Feedback ---------- */
+.osce-total {
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.osce-total[data-tone='green'] { color: var(--green-text); }
+.osce-total[data-tone='orange'] { color: var(--orange-text); }
+.osce-total[data-tone='red'] { color: var(--red-text); }
+.osce-score {
+  display: grid;
+  grid-template-columns: 110px 1fr 36px;
+  align-items: center;
+  gap: var(--s-3);
+}
+.osce-bar {
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--fill-2);
+  overflow: hidden;
+}
+.osce-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--dur-slow, 0.5s) var(--ease-out);
+}
+.osce-bar > span[data-tone='green'] { background: var(--green); }
+.osce-bar > span[data-tone='orange'] { background: var(--orange); }
+.osce-bar > span[data-tone='red'] { background: var(--red); }
+.osce-fb-item {
+  align-items: flex-start;
+}
+.osce-fb-item > svg {
+  flex: none;
+  margin-top: 2px;
+}

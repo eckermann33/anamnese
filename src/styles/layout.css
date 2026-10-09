@@ -1,0 +1,285 @@
+/* ==========================================================================
+   LAYOUT: casca do app, barra superior, tab bar flutuante, barra inferior
+   ========================================================================== */
+
+.app {
+  min-height: 100dvh;
+}
+
+/* Página: o conteúdo rola por baixo das barras de vidro. */
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-top: calc(env(safe-area-inset-top) + var(--navbar-h));
+  /* espaço para a tab bar flutuante */
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--tabbar-h) + 40px);
+  min-height: 100dvh;
+  animation: fade-in var(--dur-fast) var(--ease-out) both;
+}
+.page[data-toolbar='true'] {
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--toolbar-h) + 40px);
+}
+.page-pad {
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+/* Título grande (Large Title), rola junto com o conteúdo */
+.large-title {
+  padding: var(--s-1) var(--gutter) var(--s-3);
+}
+.large-title-sub {
+  margin-top: 2px;
+  font-size: var(--fs-subhead);
+  color: var(--label-2);
+}
+
+/* ---------------------------------------------------------------------------
+   BARRA SUPERIOR (NavBar.tsx)
+   Transparente no topo; vira vidro quando o conteúdo rola por baixo.
+   --------------------------------------------------------------------------- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding-top: env(safe-area-inset-top);
+  pointer-events: none;
+}
+.navbar-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+  border: 0;
+  border-radius: 0;
+  border-bottom: 0.5px solid var(--glass-border);
+  box-shadow: 0 0.5px 0 var(--separator);
+}
+.navbar[data-scrolled='true'] .navbar-bg {
+  opacity: 1;
+}
+.navbar-inner {
+  position: relative;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  height: var(--navbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0 var(--s-3);
+  pointer-events: auto;
+}
+.navbar-side {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  /* os botões nunca encolhem por baixo do título: quem cede é o título (reticências) */
+  min-width: max-content;
+}
+.navbar-side[data-side='right'] {
+  justify-content: flex-end;
+}
+.navbar-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 55%;
+  text-align: center;
+  font-size: var(--fs-headline);
+  font-weight: 600;
+  letter-spacing: var(--ls-headline);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-spring);
+}
+.navbar[data-scrolled='true'] .navbar-title,
+.navbar[data-title-always='true'] .navbar-title {
+  opacity: 1;
+  transform: none;
+}
+/* Botão "voltar" em cápsula de vidro (só ícone quando o título é longo) */
+.nav-back[data-icon-only] {
+  width: var(--tap);
+  padding: 0;
+  justify-content: center;
+}
+.nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: 0 var(--s-4) 0 var(--s-2);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--label);
+  max-width: 100%;
+}
+.nav-back span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-extra {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  pointer-events: auto;
+  position: relative;
+}
+
+/* ---------------------------------------------------------------------------
+   TAB BAR FLUTUANTE (TabBar.tsx)
+   --------------------------------------------------------------------------- */
+.tabbar {
+  position: fixed;
+  z-index: 60;
+  /* centralizado com margin auto (o transform fica livre para as animações) */
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
+  width: min(420px, calc(100% - 32px));
+  height: var(--tabbar-h);
+  padding: 4px;
+  border-radius: var(--r-pill);
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+  transition: transform var(--dur) var(--ease-spring), opacity var(--dur) var(--ease-out);
+}
+.tabbar[data-hidden='true'] {
+  transform: translateY(calc(100% + 40px));
+  opacity: 0;
+  pointer-events: none;
+}
+/* "Lente" que desliza até a aba selecionada */
+.tabbar-lens {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--count));
+  transform: translateX(calc(100% * var(--index)));
+  border-radius: var(--r-pill);
+  background: var(--fill-2);
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+.tabbar-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: var(--r-pill);
+  color: var(--label);
+  font-size: var(--fs-caption2);
+  line-height: var(--lh-caption2);
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  min-height: var(--tap);
+  transition: color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-spring);
+}
+.tabbar-item:active {
+  transform: scale(0.94);
+}
+.tabbar-item[aria-current='page'] {
+  color: var(--accent-text);
+}
+
+/* ---------------------------------------------------------------------------
+   BARRA DE AÇÕES INFERIOR (no fluxo do atendimento, no lugar da tab bar)
+   --------------------------------------------------------------------------- */
+.bottom-toolbar {
+  position: fixed;
+  z-index: 60;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
+  width: min(560px, calc(100% - 24px));
+  min-height: var(--toolbar-h);
+  padding: 8px;
+  border-radius: var(--r-pill);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  animation: rise-in var(--dur) var(--ease-spring) both;
+}
+.bottom-toolbar .btn {
+  min-height: 48px;
+}
+.bottom-toolbar-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-footnote);
+  line-height: var(--lh-footnote);
+  color: var(--label);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  border-radius: var(--r-pill);
+}
+.bottom-toolbar-center strong {
+  font-size: var(--fs-subhead);
+  font-weight: 600;
+}
+
+/* Área fixa abaixo da navbar: alergias, red flags, progresso */
+.sticky-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px var(--gutter) 8px;
+}
+
+/* Seção de conteúdo com título */
+.section {
+  margin-top: var(--s-6);
+}
+.section-title {
+  padding: 0 var(--gutter) var(--s-2);
+  font-size: var(--fs-title3);
+  line-height: var(--lh-title3);
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: var(--ls-title3);
+}
+.section-sub {
+  padding: 0 var(--gutter) var(--s-3);
+  margin-top: -4px;
+  font-size: var(--fs-footnote);
+  color: var(--label-2);
+}
+
+/* Aviso clínico fixo */
+.disclaimer {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  margin: var(--s-6) var(--gutter) 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--fill);
+  font-size: var(--fs-footnote);
+  line-height: var(--lh-footnote);
+  color: var(--label);
+}
+.disclaimer svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--label-2);
+}
+
+@media (min-width: 760px) {
+  :root {
+    --gutter: 20px;
+  }
+}
