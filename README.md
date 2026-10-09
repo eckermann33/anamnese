@@ -23,6 +23,8 @@ cp .env.example .env.local   # preencha LLM_KEY (pode ser a chave Groq do invict
 npm run dev                  # http://localhost:5173
 ```
 
+**Falta publicar?** Veja [docs/PROXIMOS-PASSOS.md](docs/PROXIMOS-PASSOS.md) (15 min, só pelo navegador).
+
 Passo a passo completo (instalar o Node no Mac, publicar na Cloudflare/Vercel, instalar no iPhone): **[docs/FASE-1.md](docs/FASE-1.md)**.
 
 ## Comandos
