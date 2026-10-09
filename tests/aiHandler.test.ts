@@ -73,6 +73,18 @@ describe('função de IA (compatível com OpenAI)', () => {
     expect((await res.json()).error).toMatch(/Cota/);
   });
 
+  it('chave recusada (401) → explica e mostra o código; chave com espaço/quebra de linha é aparada', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => providerResponse('{"error":"invalid_api_key"}', 401));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const res = await handleAiRequest(post(request), { LLM_KEY: ' gsk_abc\n' });
+    const body = await res.json();
+    expect(res.status).toBe(503);
+    expect(body.error).toMatch(/chave da IA foi recusada/);
+    expect(body.error).toMatch(/LLM1:401 LLM2:401/);
+    expect(fetchMock.mock.calls[0][1].headers.authorization).toBe('Bearer gsk_abc');
+  });
+
   it('exige código de acesso quando configurado e valida o pedido', async () => {
     vi.stubGlobal('fetch', vi.fn());
     const denied = await handleAiRequest(post(request), { LLM_KEY: 'k', ACCESS_CODE: 'segredo' });
